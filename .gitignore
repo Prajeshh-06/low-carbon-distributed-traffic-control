@@ -52,3 +52,7 @@ comparison_plot.png
 
 # CVXPY / solver
 *.pkl
+
+# Binaries & generated docs
+tectonic.exe
+*.pdf
