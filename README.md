@@ -38,48 +38,94 @@
 ```
 trafficmind/
 ├── core/
-│   ├── dynamics.py          # Discrete queue evolution:  x(t+1) = max(x(t) + d - C·g, 0)
-│   ├── emission.py          # Dual-source emission model (idle + throughput)
-│   └── mpc_controller.py    # Convex MPC via CVXPY / SCS solver
+│   ├── dynamics.py            # Discrete queue evolution model
+│   ├── emission.py            # Dual-source emission model (idle + throughput)
+│   ├── mpc_controller.py      # Convex MPC via CVXPY / SCS solver
+│   └── demand_forecaster.py   # Demand prediction utilities
 ├── federated/
-│   ├── agent.py             # IntersectionAgent — local MPC + FedAvg interface
-│   └── fedavg.py            # θ_global = (1/N) Σ θ_local
+│   ├── agent.py               # IntersectionAgent — local MPC + FedAvg interface
+│   └── fedavg.py              # θ_global = (1/N) Σ θ_local
 ├── experiments/
-│   ├── shock_events.py      # Demand surge injection
-│   ├── simulation.py        # Multi-agent orchestrator
-│   └── run_experiment.py    # Baseline vs carbon-aware runner
+│   ├── shock_events.py        # Demand surge injection
+│   ├── simulation.py          # Multi-agent orchestrator
+│   └── run_experiment.py      # Baseline vs carbon-aware runner
 ├── utils/
-│   └── plotting.py          # Matplotlib comparison charts
-├── dashboard.py             # Streamlit smart city dashboard
-├── main.py                  # CLI entry point
-└── requirements.txt
+│   └── plotting.py            # Matplotlib comparison charts
+├── figures/                   # Pre-generated experiment result plots (PDF)
+├── dashboard.py               # Streamlit smart city dashboard
+├── main.py                    # CLI entry point
+├── bare_jrnl.tex              # IEEE journal LaTeX source
+├── bare_jrnl.pdf              # Compiled research paper
+├── requirements.txt           # Python dependencies
+└── README.md
 ```
 
 ---
 
-## Quick Start
+## Getting Started
 
-### 1. Install dependencies
+### Prerequisites
+
+- **Python 3.9** or higher
+- **pip** (Python package manager)
+- **Git**
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Prajeshh-06/low-carbon-distributed-traffic-control.git
+cd low-carbon-distributed-traffic-control
+```
+
+### 2. Create a Virtual Environment (recommended)
+
+```bash
+# Windows
+python -m venv .venv
+.venv\Scripts\activate
+
+# macOS / Linux
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Run the CLI simulation
+This installs:
+
+| Package | Purpose |
+|---|---|
+| `numpy` | Numerical computation |
+| `cvxpy` | Convex optimization (MPC solver) |
+| `matplotlib` | Plotting & visualization |
+| `streamlit` | Interactive web dashboard |
+
+### 4. Run the CLI Simulation
 
 ```bash
 python main.py
 ```
 
-Prints a comparison table (baseline vs carbon-aware) and saves `comparison_plot.png`.
+This runs a baseline vs. carbon-aware comparison and prints a results table to the console.
 
-### 3. Launch the interactive dashboard
+### 5. Launch the Interactive Dashboard
 
 ```bash
-python -m streamlit run dashboard.py
+streamlit run dashboard.py
 ```
 
-Opens at **http://localhost:8501**. Adjust sliders for γ, number of agents, shock factor, and MPC horizon, then click **▶ Run Simulation**.
+Opens at **http://localhost:8501**. Use the sidebar to adjust:
+
+- **γ (gamma)** — emission penalty weight
+- **Number of agents** — intersection count
+- **Shock factor** — demand spike multiplier
+- **MPC horizon** — look-ahead steps
+
+Click **▶ Run Simulation** to visualize results.
 
 ---
 
@@ -136,6 +182,27 @@ Key parameters in `experiments/simulation.py`:
 | `carbon_budget` | 15.0 | Per-agent emission budget before γ escalation |
 | `shock_step` | 20 | Timestep of demand shock |
 | `shock_factor` | 3.0 | Shock demand multiplier |
+
+---
+
+## Figures
+
+The `figures/` directory contains 12 pre-generated experiment plots:
+
+| Figure | Description |
+|---|---|
+| `fig1_emission_time` | Emission rate over time |
+| `fig2_queue_time` | Queue length over time |
+| `fig3_green_time` | Green time allocation over time |
+| `fig4_gamma_time` | γ adaptation over time |
+| `fig5_cumulative_emission` | Cumulative emissions comparison |
+| `fig6_total_emission_bar` | Total emission bar chart |
+| `fig7_avg_queue_bar` | Average queue length bar chart |
+| `fig8_shock_zoom` | Zoomed shock-event response |
+| `fig9_horizon_emission` | Horizon vs emission sensitivity |
+| `fig10_gamma_emission` | γ vs emission sensitivity |
+| `fig11_shock_factor` | Shock factor analysis |
+| `fig12_complexity` | Computational complexity |
 
 ---
 

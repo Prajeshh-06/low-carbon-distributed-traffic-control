@@ -53,6 +53,6 @@ comparison_plot.png
 # CVXPY / solver
 *.pkl
 
-# Binaries & generated docs
+# Binaries
 tectonic.exe
-*.pdf
+architecture.pdf
