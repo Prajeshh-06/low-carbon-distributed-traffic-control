@@ -2,277 +2,358 @@
 Plotting Utilities
 ==================
 
-Visualisation functions for traffic simulation results.
-All functions accept the metrics dictionaries returned by
-:func:`experiments.simulation.run_simulation`.
+Generates 12 diverse, print-quality comparative figures for the IEEE journal paper.
+All figures are exported as PDF to the /figures directory.
+
+Colour palette: muted, low-saturation, print-friendly.
+Font sizes: large enough for comfortable reading when printed at two-column width.
 """
 
 import os
 import time
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from matplotlib.gridspec import GridSpec
 from experiments.run_experiment import run_experiment
 from experiments.simulation import run_simulation
 
+# ─────────────────────────────────────────────
+#  Global style settings  (bumped from previous version)
+# ─────────────────────────────────────────────
+matplotlib.rcParams.update({
+    "font.family":       "serif",
+    "font.size":         15,        # base (was 13)
+    "axes.titlesize":    17,        # unused — titles removed from graphs
+    "axes.labelsize":    15,        # axis labels (was 13)
+    "xtick.labelsize":   14,        # tick labels (was 12)
+    "ytick.labelsize":   14,
+    "legend.fontsize":   13,        # legend (was 11)
+    "legend.framealpha": 0.85,
+    "lines.linewidth":   2.2,
+    "axes.spines.top":   False,
+    "axes.spines.right": False,
+    "figure.dpi":        150,
+})
 
-def plot_emission(results, title="Total Emissions Over Time", ax=None):
-    """
-    Plot per-timestep total emissions.
+# ─────────────────────────────────────────────
+#  Muted colour palette
+# ─────────────────────────────────────────────
+COLORS = {
+    "baseline":      "#5d6d7e",   # slate grey
+    "carbon":        "#5d8a6e",   # muted sage green
+    "high_gamma":    "#a07840",   # muted amber
+    "short_horizon": "#6b5b8c",   # muted mauve
+    "long_horizon":  "#3d6b8f",   # steel blue
+    "lstm_carbon":   "#8c5b5b",   # dusty rose
+}
 
-    Parameters
-    ----------
-    results : dict
-        Simulation output containing ``"emissions"`` key.
-    title : str, optional
-        Plot title.
-    ax : matplotlib.axes.Axes or None
-        Axes to draw on; creates a new figure if None.
-    """
-    if ax is None:
-        _, ax = plt.subplots(figsize=(8, 4))
-    ax.plot(results["emissions"], linewidth=1.8, color="#e74c3c")
-    ax.set_xlabel("Timestep")
-    ax.set_ylabel("Total Emission (carbon units)")
-    ax.set_title(title)
-    ax.grid(True, alpha=0.3)
+LABELS = {
+    "baseline":      r"Baseline MPC ($\gamma=0$)",
+    "carbon":        r"Carbon-Aware MPC ($\gamma=0.9$)",
+    "high_gamma":    r"High Sustainability ($\gamma=1.5$)",
+    "short_horizon": r"Short Horizon ($H=3$)",
+    "long_horizon":  r"Long Horizon ($H=10$)",
+    "lstm_carbon":   r"LSTM + Carbon-Aware",
+}
 
+ORDERED_KEYS = ["baseline", "carbon", "high_gamma", "short_horizon",
+                "long_horizon", "lstm_carbon"]
 
-def plot_queue_evolution(results, title="Average Queue Over Time", ax=None):
-    """
-    Plot per-timestep average queue length across all agents.
-
-    Parameters
-    ----------
-    results : dict
-        Simulation output containing ``"avg_queues"`` key.
-    title : str, optional
-        Plot title.
-    ax : matplotlib.axes.Axes or None
-        Axes to draw on; creates a new figure if None.
-    """
-    if ax is None:
-        _, ax = plt.subplots(figsize=(8, 4))
-    ax.plot(results["avg_queues"], linewidth=1.8, color="#3498db")
-    ax.set_xlabel("Timestep")
-    ax.set_ylabel("Average Queue Length")
-    ax.set_title(title)
-    ax.grid(True, alpha=0.3)
+FIGURES_DIR = "figures"
 
 
-def compare_baseline_vs_carbon_aware(baseline, carbon_aware):
-    """
-    Side-by-side comparison of baseline and carbon-aware simulations.
-
-    Produces a 2×1 figure:
-        Top    — emissions comparison
-        Bottom — queue comparison
-
-    Annotates total emission values and carbon savings percentage.
-
-    Parameters
-    ----------
-    baseline : dict
-        Results from the baseline (γ = 0) simulation.
-    carbon_aware : dict
-        Results from the carbon-aware (γ > 0) simulation.
-    """
-    fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
-
-    # ---- Emission comparison ----
-    ax = axes[0]
-    ax.plot(baseline["emissions"], label="Baseline (γ=0)", linewidth=1.8,
-            color="#e74c3c", linestyle="--")
-    ax.plot(carbon_aware["emissions"], label="Carbon-Aware", linewidth=1.8,
-            color="#27ae60")
-    ax.set_ylabel("Total Emission")
-    ax.set_title("Emissions: Baseline vs Carbon-Aware")
-    ax.legend()
-    ax.grid(True, alpha=0.3)
-
-    # Annotate savings
-    total_base = sum(baseline["emissions"])
-    total_ca = sum(carbon_aware["emissions"])
-    savings_pct = (1 - total_ca / total_base) * 100 if total_base > 0 else 0
-    ax.annotate(
-        f"Carbon savings: {savings_pct:.1f}%",
-        xy=(0.98, 0.95),
-        xycoords="axes fraction",
-        ha="right", va="top",
-        fontsize=11, fontweight="bold",
-        bbox=dict(boxstyle="round,pad=0.3", fc="#d5f5e3", ec="#27ae60"),
-    )
-
-    # ---- Queue comparison ----
-    ax = axes[1]
-    ax.plot(baseline["avg_queues"], label="Baseline (γ=0)", linewidth=1.8,
-            color="#e74c3c", linestyle="--")
-    ax.plot(carbon_aware["avg_queues"], label="Carbon-Aware", linewidth=1.8,
-            color="#27ae60")
-    ax.set_xlabel("Timestep")
-    ax.set_ylabel("Average Queue Length")
-    ax.set_title("Queue: Baseline vs Carbon-Aware")
-    ax.legend()
-    ax.grid(True, alpha=0.3)
-
+def _save(fig, filename):
+    """Tight-layout then save as PDF."""
     fig.tight_layout()
-    return fig
+    fig.savefig(os.path.join(FIGURES_DIR, filename), format="pdf",
+                bbox_inches="tight")
+    plt.close(fig)
 
 
 def generate_all_comparative_plots(results_dict):
     """
-    Generate 12 comparative graphs and save them as PDFs in the /figures directory.
+    Generate 12 diverse comparative graphs and save as PDFs in /figures.
+
+    Graph types include:
+        line plots, bar charts, a heat-map matrix, a scatter plot,
+        a cumulative area chart, a horizon-sensitivity curve,
+        a gamma-sensitivity curve, a shock-factor plot,
+        and a runtime complexity plot.
+
+    Parameters
+    ----------
+    results_dict : dict
+        Mapping of configuration name -> simulation result dict, as returned
+        by :func:`experiments.run_experiment.run_experiment`.
     """
-    os.makedirs("figures", exist_ok=True)
-    
-    labels = {
-        "baseline": "Baseline",
-        "carbon": "Carbon-Aware",
-        "high_gamma": "High Sustain (gamma=1.5)",
-        "short_horizon": "Short Horizon (H=3)",
-        "long_horizon": "Long Horizon (H=10)",
-        "lstm_carbon": "LSTM + Carbon-Aware",
-    }
-    
-    colors = {
-        "baseline": "#e74c3c",
-        "carbon": "#27ae60",
-        "high_gamma": "#f39c12",
-        "short_horizon": "#8e44ad",
-        "long_horizon": "#2980b9",
-        "lstm_carbon": "#e91e63",
-    }
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    keys = ORDERED_KEYS
 
-    # Helper function for consistently styling and saving plots
-    def save_fig(fig, ax, filename, title, xlabel, ylabel):
-        ax.set_title(title, pad=15, fontweight="bold")
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        if ax.get_legend_handles_labels()[0]:
-            ax.legend()
-        ax.grid(True, alpha=0.3)
-        fig.tight_layout()
-        fig.savefig(os.path.join("figures", filename), format="pdf")
-        plt.close(fig)
+    # ── Figure 1 ─────────────────────────────────────────────────────────────
+    # Line plot: Total emission over time (all 6 configs)
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    for k in keys:
+        ax.plot(results_dict[k]["total_emission"],
+                color=COLORS[k], label=LABELS[k])
+    ax.axvline(x=20, color="#999999", linestyle=":", linewidth=1.5,
+               label="Demand shock ($t=20$)")
+    ax.set_xlabel("Simulation Timestep $t$")
+    ax.set_ylabel(r"Network Emission $\sum_i E_{i,t}$ (carbon units)")
+    ax.legend(loc="upper right", ncol=2)
+    ax.grid(True, alpha=0.25, linestyle="--")
+    _save(fig, "fig1_emission_time.pdf")
 
-    # 1. Emission vs Time
-    fig, ax = plt.subplots(figsize=(10, 6))
-    for key, res in results_dict.items():
-        ax.plot(res["total_emission"], label=labels.get(key, key), color=colors.get(key), linewidth=2)
-    save_fig(fig, ax, "fig1_emission_time.pdf", "Emission vs Time", "Timestep", "Total Emission (carbon units)")
-    
-    # 2. Queue vs Time
-    fig, ax = plt.subplots(figsize=(10, 6))
-    for key, res in results_dict.items():
-        ax.plot(res["avg_queue"], label=labels.get(key, key), color=colors.get(key), linewidth=2)
-    save_fig(fig, ax, "fig2_queue_time.pdf", "Queue vs Time", "Timestep", "Average Queue Length")
+    # ── Figure 2 ─────────────────────────────────────────────────────────────
+    # Line plot: Average queue length over time
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    for k in keys:
+        ax.plot(results_dict[k]["avg_queue"],
+                color=COLORS[k], label=LABELS[k])
+    ax.axvline(x=20, color="#999999", linestyle=":", linewidth=1.5,
+               label="Demand shock ($t=20$)")
+    ax.set_xlabel("Simulation Timestep $t$")
+    ax.set_ylabel(r"Mean Queue Length $\bar{q}_t$ (vehicles)")
+    ax.legend(loc="upper right", ncol=2)
+    ax.grid(True, alpha=0.25, linestyle="--")
+    _save(fig, "fig2_queue_time.pdf")
 
-    # 3. Green Time vs Time
-    fig, ax = plt.subplots(figsize=(10, 6))
-    for key, res in results_dict.items():
-        avg_green = [np.mean(step) for step in res["green_time_trajectory"]]
-        ax.plot(avg_green, label=labels.get(key, key), color=colors.get(key), linewidth=2)
-    save_fig(fig, ax, "fig3_green_time.pdf", "Green Time vs Time", "Timestep", "Average Green Time Fraction")
+    # ── Figure 3 ─────────────────────────────────────────────────────────────
+    # Horizontal grouped bar chart: total emission + avg queue
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    short_labels = [LABELS[k].split("(")[0].strip() for k in keys]
+    totals  = [sum(results_dict[k]["total_emission"]) for k in keys]
+    avg_q   = [float(np.mean(results_dict[k]["avg_queue"])) for k in keys]
+    bar_cols = [COLORS[k] for k in keys]
+    y = np.arange(len(keys))
 
-    # 4. Gamma Convergence vs Time
-    fig, ax = plt.subplots(figsize=(10, 6))
-    for key, res in results_dict.items():
-        if "gamma_trajectory" in res:
-            avg_gamma = [np.mean(step) for step in res["gamma_trajectory"]]
-            ax.plot(avg_gamma, label=labels.get(key, key), color=colors.get(key), linewidth=2)
-    save_fig(fig, ax, "fig4_gamma_time.pdf", "Gamma Convergence vs Time", "Timestep", "Average Gamma Value")
+    axes[0].barh(y, totals, color=bar_cols, edgecolor="#333333", linewidth=0.6)
+    axes[0].set_yticks(y); axes[0].set_yticklabels(short_labels, fontsize=13)
+    axes[0].set_xlabel("Total Cumulative Emission")
+    axes[0].grid(True, alpha=0.25, axis="x", linestyle="--")
+    base_tot = totals[0]
+    for i, v in enumerate(totals):
+        pct = (1 - v / base_tot) * 100 if i > 0 else 0
+        axes[0].text(v + 5, i, f"−{pct:.1f}%" if i > 0 else "Ref",
+                     va="center", fontsize=12, color="#444444")
 
-    # 5. Cumulative Emission vs Time
-    fig, ax = plt.subplots(figsize=(10, 6))
-    for key, res in results_dict.items():
-        cum_emission = np.cumsum(res["total_emission"])
-        ax.plot(cum_emission, label=labels.get(key, key), color=colors.get(key), linewidth=2)
-    save_fig(fig, ax, "fig5_cumulative_emission.pdf", "Cumulative Emission vs Time", "Timestep", "Cumulative Emission")
+    axes[1].barh(y, avg_q, color=bar_cols, edgecolor="#333333", linewidth=0.6)
+    axes[1].set_yticks(y); axes[1].set_yticklabels(short_labels, fontsize=13)
+    axes[1].set_xlabel("Mean Queue Length (vehicles)")
+    axes[1].grid(True, alpha=0.25, axis="x", linestyle="--")
 
-    # 6. Total Emission Bar Comparison
-    fig, ax = plt.subplots(figsize=(10, 6))
-    keys = list(results_dict.keys())
-    totals = [sum(results_dict[k]["total_emission"]) for k in keys]
-    ax.bar(keys, totals, color=[colors.get(k, "gray") for k in keys])
-    ax.set_title("Total Emission Bar Comparison", pad=15, fontweight="bold")
-    ax.set_ylabel("Total Sum of Emissions")
-    ax.grid(True, alpha=0.3, axis="y")
-    fig.tight_layout()
-    fig.savefig(os.path.join("figures", "fig6_total_emission_bar.pdf"), format="pdf")
-    plt.close(fig)
+    _save(fig, "fig3_green_time.pdf")
 
-    # 7. Average Queue Bar Comparison
-    fig, ax = plt.subplots(figsize=(10, 6))
-    avg_q = [np.mean(results_dict[k]["avg_queue"]) for k in keys]
-    ax.bar(keys, avg_q, color=[colors.get(k, "gray") for k in keys])
-    ax.set_title("Average Queue Bar Comparison", pad=15, fontweight="bold")
-    ax.set_ylabel("Mean Average Queue")
-    ax.grid(True, alpha=0.3, axis="y")
-    fig.tight_layout()
-    fig.savefig(os.path.join("figures", "fig7_avg_queue_bar.pdf"), format="pdf")
-    plt.close(fig)
+    # ── Figure 4 ─────────────────────────────────────────────────────────────
+    # Gamma convergence line plot
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    for k in keys:
+        if "gamma_trajectory" in results_dict[k]:
+            avg_g = [float(np.mean(step))
+                     for step in results_dict[k]["gamma_trajectory"]]
+            ax.plot(avg_g, color=COLORS[k], label=LABELS[k])
+    ax.set_xlabel("Simulation Timestep $t$")
+    ax.set_ylabel(r"Mean Carbon Penalty $\bar{\gamma}_t$")
+    ax.legend(loc="upper left", ncol=2)
+    ax.grid(True, alpha=0.25, linestyle="--")
+    _save(fig, "fig4_gamma_time.pdf")
 
-    # 8. Shock Response Zoom (Emission between t=15 to t=30)
-    fig, ax = plt.subplots(figsize=(10, 6))
-    for key, res in results_dict.items():
-        # Make sure enough timesteps exist
-        if len(res["total_emission"]) >= 31:
-            emissions_zoom = res["total_emission"][15:31]
-            ax.plot(range(15, 31), emissions_zoom, label=labels.get(key, key), color=colors.get(key), linewidth=2, marker="o")
-    save_fig(fig, ax, "fig8_shock_zoom.pdf", "Shock Response Zoom (Emission between t=15 to t=30)", "Timestep", "Total Emission (carbon units)")
+    # ── Figure 5 ─────────────────────────────────────────────────────────────
+    # Cumulative emission area chart
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    for k in keys:
+        cum = np.cumsum(results_dict[k]["total_emission"])
+        ax.plot(cum, color=COLORS[k], label=LABELS[k])
+        ax.fill_between(range(len(cum)), cum, alpha=0.10, color=COLORS[k])
+    ax.set_xlabel("Simulation Timestep $t$")
+    ax.set_ylabel("Cumulative Emission (carbon units)")
+    ax.legend(loc="upper left", ncol=2)
+    ax.grid(True, alpha=0.25, linestyle="--")
+    _save(fig, "fig5_cumulative_emission.pdf")
 
-    # 9. Horizon vs Total Emission
+    # ── Figure 6 ─────────────────────────────────────────────────────────────
+    # HEAT MAP: Per-config emission intensity across 10-step windows
+    ca_result = results_dict["carbon"]
+    T = len(ca_result["total_emission"])
+    window = max(1, T // 10)
+    configs_short = ["Baseline", "Carbon-Aware", "High Sust.",
+                     "Short H", "Long H", "LSTM+CA"]
+    heatmap_data = []
+    for k in keys:
+        row = []
+        for w in range(10):
+            t0, t1 = w * window, min((w + 1) * window, T)
+            seg = results_dict[k]["total_emission"][t0:t1]
+            row.append(float(np.mean(seg)) if seg else 0.0)
+        heatmap_data.append(row)
+    heatmap_data = np.array(heatmap_data)
+
+    fig, ax = plt.subplots(figsize=(11, 5))
+    im = ax.imshow(heatmap_data, aspect="auto", cmap="RdYlGn_r",
+                   interpolation="nearest")
+    cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    cbar.set_label("Mean Emission per Window", fontsize=14)
+    ax.set_xticks(range(10))
+    ax.set_xticklabels([f"W{i+1}" for i in range(10)], fontsize=13)
+    ax.set_yticks(range(len(keys)))
+    ax.set_yticklabels(configs_short, fontsize=13)
+    ax.set_xlabel("10-Timestep Simulation Windows")
+    ax.set_ylabel("Controller Configuration")
+    for i in range(len(keys)):
+        for j in range(10):
+            ax.text(j, i, f"{heatmap_data[i, j]:.1f}",
+                    ha="center", va="center", fontsize=9,
+                    color="white" if heatmap_data[i, j] > heatmap_data.max() * 0.6 else "#222222")
+    _save(fig, "fig6_total_emission_bar.pdf")
+
+    # ── Figure 7 ─────────────────────────────────────────────────────────────
+    # SCATTER PLOT: Queue vs. Emission Pareto cloud
+    fig, ax = plt.subplots(figsize=(9, 7))
+    for k in keys:
+        qs = results_dict[k]["avg_queue"]
+        em = results_dict[k]["total_emission"]
+        ax.scatter(qs, em, color=COLORS[k], alpha=0.45, s=35,
+                   edgecolors="none", label=LABELS[k])
+    ax.set_xlabel(r"Average Queue Length $\bar{q}_t$ (vehicles)")
+    ax.set_ylabel(r"Total Emission $\sum_i E_{i,t}$ (carbon units)")
+    ax.legend(loc="upper left", ncol=1, markerscale=1.8)
+    ax.grid(True, alpha=0.25, linestyle="--")
+    _save(fig, "fig7_avg_queue_bar.pdf")
+
+    # ── Figure 8 ─────────────────────────────────────────────────────────────
+    # SHOCK ZOOM — emission between t=15..35
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    t_start, t_end = 15, 36
+    for k in keys:
+        em = results_dict[k]["total_emission"]
+        if len(em) >= t_end:
+            ax.plot(range(t_start, t_end), em[t_start:t_end],
+                    color=COLORS[k], marker="o", markersize=5,
+                    label=LABELS[k])
+    ax.axvline(x=20, color="#888888", linestyle=":", linewidth=1.5,
+               label="Shock onset ($t=20$)")
+    ax.set_xlabel("Simulation Timestep $t$")
+    ax.set_ylabel(r"Network Emission $\sum_i E_{i,t}$")
+    ax.legend(ncol=2, fontsize=12)
+    ax.grid(True, alpha=0.25, linestyle="--")
+    _save(fig, "fig8_shock_zoom.pdf")
+
+    # ── Figure 9 ─────────────────────────────────────────────────────────────
+    # HORIZON SENSITIVITY — total emission vs prediction horizon H
     fig, ax = plt.subplots(figsize=(8, 5))
     horizons = [3, 5, 10]
     ems = [
         sum(results_dict["short_horizon"]["total_emission"]),
         sum(results_dict["carbon"]["total_emission"]),
-        sum(results_dict["long_horizon"]["total_emission"])
+        sum(results_dict["long_horizon"]["total_emission"]),
     ]
-    ax.plot(horizons, ems, marker="s", linestyle="-", linewidth=2, color="#2c3e50", label="Emission vs Horizon")
-    save_fig(fig, ax, "fig9_horizon_emission.pdf", "Horizon vs Total Emission", "Prediction Horizon (H)", "Total Emission")
+    ax.plot(horizons, ems, color=COLORS["carbon"], marker="s",
+            markersize=10, linestyle="-", linewidth=2.2,
+            label=r"Carbon-Aware MPC ($\gamma=0.9$)")
+    for h, e in zip(horizons, ems):
+        ax.annotate(f"{e:.1f}", xy=(h, e), xytext=(0, 10),
+                    textcoords="offset points", ha="center", fontsize=13)
+    ax.set_xlabel("Prediction Horizon $H$ (timesteps)")
+    ax.set_ylabel("Total Cumulative Emission")
+    ax.set_xticks(horizons)
+    ax.legend()
+    ax.grid(True, alpha=0.25, linestyle="--")
+    _save(fig, "fig9_horizon_emission.pdf")
 
-    # 10. Gamma vs Total Emission
+    # ── Figure 10 ────────────────────────────────────────────────────────────
+    # GAMMA vs TOTAL EMISSION — parametric curve
     fig, ax = plt.subplots(figsize=(8, 5))
     gammas = [0.0, 0.9, 1.5]
-    ems_gamma = [
+    ems_g = [
         sum(results_dict["baseline"]["total_emission"]),
         sum(results_dict["carbon"]["total_emission"]),
-        sum(results_dict["high_gamma"]["total_emission"])
+        sum(results_dict["high_gamma"]["total_emission"]),
     ]
-    ax.plot(gammas, ems_gamma, marker="^", linestyle="-", linewidth=2, color="#16a085", label="Emission vs Gamma")
-    save_fig(fig, ax, "fig10_gamma_emission.pdf", "Gamma vs Total Emission", "Initial Gamma Coefficient", "Total Emission")
+    ax.plot(gammas, ems_g, color=COLORS["high_gamma"], marker="^",
+            markersize=11, linestyle="-", linewidth=2.2)
+    for g, e in zip(gammas, ems_g):
+        ax.annotate(f"{e:.1f}", xy=(g, e), xytext=(0, 10),
+                    textcoords="offset points", ha="center", fontsize=13)
+    ax.set_xlabel(r"Carbon Penalty Coefficient $\gamma$")
+    ax.set_ylabel("Total Cumulative Emission")
+    ax.grid(True, alpha=0.25, linestyle="--")
+    _save(fig, "fig10_gamma_emission.pdf")
 
-    # 11. Emission vs Shock Factor (simulate factors 1-3)
+    # ── Figure 11 ────────────────────────────────────────────────────────────
+    # EMISSION vs SHOCK FACTOR multi-series line plot
     shock_factors = [1.0, 1.5, 2.0, 2.5, 3.0]
-    results_shock = {k: [] for k in results_dict.keys()}
-    
-    # Minimal runs to gather total emissions for different shocks
+    results_shock = {k: [] for k in keys}
     for sf in shock_factors:
         res_sf = run_experiment(steps=50, shock_factor=sf, shock_step=20)
-        for k in results_dict.keys():
+        for k in keys:
             results_shock[k].append(sum(res_sf[k]["total_emission"]))
-            
-    fig, ax = plt.subplots(figsize=(10, 6))
-    for key in results_dict.keys():
-        ax.plot(shock_factors, results_shock[key], marker="o", label=labels.get(key, key), color=colors.get(key), linewidth=2)
-    save_fig(fig, ax, "fig11_shock_factor.pdf", "Emission vs Shock Factor", "Shock Factor", "Total Emission")
 
-    # 12. Computational Complexity vs Horizon (measure runtime)
-    test_horizons = [2, 4, 6, 8, 10]
-    runtimes_horizon = {k: [] for k in results_dict.keys()}
-    
-    # We will test run_simulation direct approach for 15 steps
-    for h in test_horizons:
-        for k in runtimes_horizon.keys():
-            gamma_val = 1.5 if k == "high_gamma" else (0.0 if k == "baseline" else 0.9)
-            fed_sync = False if k == "baseline" else True
-            
-            start_t = time.time()
-            run_simulation(steps=15, gamma=gamma_val, federated_sync=fed_sync, horizon=h)
-            dt = time.time() - start_t
-            runtimes_horizon[k].append(dt)
-            
-    fig, ax = plt.subplots(figsize=(10, 6))
-    for key in runtimes_horizon.keys():
-        ax.plot(test_horizons, runtimes_horizon[key], marker="d", label=labels.get(key, key), color=colors.get(key), linewidth=2)
-    save_fig(fig, ax, "fig12_complexity.pdf", "Computational Complexity", "Prediction Horizon (H)", "Simulation Runtime (seconds)")
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    for k in keys:
+        ax.plot(shock_factors, results_shock[k],
+                color=COLORS[k], marker="o", markersize=7,
+                label=LABELS[k])
+    ax.set_xlabel(r"Shock Multiplier $\kappa = \lambda_{\mathrm{shock}} / \lambda$")
+    ax.set_ylabel("Total Cumulative Emission")
+    ax.legend(ncol=2)
+    ax.grid(True, alpha=0.25, linestyle="--")
+    _save(fig, "fig11_shock_factor.pdf")
+
+    # ── Figure 12 ────────────────────────────────────────────────────────────
+    # COMPUTATIONAL COMPLEXITY — runtime vs horizon with error bands
+    test_horizons = [2, 3, 5, 7, 10]
+    N_REPEATS = 5
+    runtime_matrix = {k: np.zeros((N_REPEATS, len(test_horizons)))
+                      for k in keys}
+
+    gamma_map = {"baseline": 0.0, "carbon": 0.9, "high_gamma": 1.5,
+                 "short_horizon": 0.9, "long_horizon": 0.9, "lstm_carbon": 0.9}
+    fed_map   = {k: False if k == "baseline" else True for k in keys}
+
+    for r in range(N_REPEATS):
+        for hi, h in enumerate(test_horizons):
+            for k in keys:
+                t0 = time.perf_counter()
+                run_simulation(steps=15, gamma=gamma_map[k],
+                               federated_sync=fed_map[k], horizon=h, seed=r)
+                runtime_matrix[k][r, hi] = time.perf_counter() - t0
+
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    for k in keys:
+        mean_rt = runtime_matrix[k].mean(axis=0)
+        std_rt  = runtime_matrix[k].std(axis=0)
+        ax.plot(test_horizons, mean_rt, color=COLORS[k],
+                marker="d", markersize=7, label=LABELS[k])
+        ax.fill_between(test_horizons,
+                        mean_rt - std_rt, mean_rt + std_rt,
+                        alpha=0.15, color=COLORS[k])
+    ax.set_xlabel("Prediction Horizon $H$ (timesteps)")
+    ax.set_ylabel("Wall-Clock Runtime (seconds)")
+    ax.legend(ncol=2)
+    ax.grid(True, alpha=0.25, linestyle="--")
+    _save(fig, "fig12_complexity.pdf")
+
+    print("Done! All 12 figures saved to ./figures/")
+
+
+# ─────────────────────────────────────────────
+#  Legacy helpers (retained for compatibility)
+# ─────────────────────────────────────────────
+
+def plot_emission(results, title="Total Emissions Over Time", ax=None):
+    if ax is None:
+        _, ax = plt.subplots(figsize=(9, 4.5))
+    ax.plot(results["emissions"], linewidth=2.0, color=COLORS["carbon"])
+    ax.set_xlabel("Timestep $t$")
+    ax.set_ylabel("Total Emission (carbon units)")
+    ax.grid(True, alpha=0.25, linestyle="--")
+
+
+def plot_queue_evolution(results, title="Average Queue Over Time", ax=None):
+    if ax is None:
+        _, ax = plt.subplots(figsize=(9, 4.5))
+    ax.plot(results["avg_queues"], linewidth=2.0, color=COLORS["baseline"])
+    ax.set_xlabel("Timestep $t$")
+    ax.set_ylabel("Average Queue Length (vehicles)")
+    ax.grid(True, alpha=0.25, linestyle="--")

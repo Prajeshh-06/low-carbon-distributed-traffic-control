@@ -51,14 +51,14 @@ class IntersectionAgent:
         self,
         agent_id: int,
         initial_queue: float = 0.0,
-        capacity: float = 10.0,
-        carbon_budget: float = 50.0,
+        capacity: float = 15.0,
+        carbon_budget: float = 15.0,
         alpha: float = 1.0,
         beta: float = 0.5,
         gamma: float = 0.3,
         horizon: int = 5,
         idle_factor: float = 0.5,
-        max_green: float = 0.6,
+        max_green: float = 0.75,
     ):
         self.agent_id = agent_id
         self.queue = float(initial_queue)

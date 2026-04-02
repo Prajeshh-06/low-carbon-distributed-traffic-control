@@ -1,203 +1,285 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" version="29.6.0">
-  <diagram name="Architecture" id="1hT9J4xLZ2fOqWmRnU_v">
-    <mxGraphModel dx="1426" dy="777" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" version="29.6.1">
+  <diagram id="M4W_IIDwF-cSnJuxrmOI" name="Page-1">
+    <mxGraphModel dx="1097" dy="598" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="1" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="" vertex="1">
-          <mxGeometry height="520" width="720" x="60" y="80" as="geometry" />
+        <mxCell id="L1_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;arcSize=4;opacity=50;" value="" vertex="1">
+          <mxGeometry height="200" width="1570" x="40" y="30" as="geometry" />
         </mxCell>
-        <mxCell id="3" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;Federated Graph-Based Multi-Agent Traffic Control Architecture&lt;/font&gt;&lt;/b&gt;" vertex="1">
-          <mxGeometry height="30" width="520" x="160" y="100" as="geometry" />
+        <mxCell id="L1_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1;fontColor=#23527c;" value="LAYER 1 — Global FedAvg Aggregation Server" vertex="1">
+          <mxGeometry height="28" width="560" x="55" y="38" as="geometry" />
         </mxCell>
-        <mxCell id="4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
-          <mxGeometry height="180" width="640" x="100" y="160" as="geometry" />
+        <mxCell id="server" parent="1" style="shape=mxgraph.cisco.servers.standard_server;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;labelPosition=center;verticalLabelPosition=bottom;" value="FedAvg Server" vertex="1">
+          <mxGeometry height="70" width="70" x="130" y="75" as="geometry" />
         </mxCell>
-        <mxCell id="5" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" value="&lt;b&gt;Decentralized Traffic Intersections (Agents)&lt;/b&gt;" vertex="1">
-          <mxGeometry height="30" width="280" x="110" y="170" as="geometry" />
+        <mxCell id="fedavg_eq" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=13;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;" value="&lt;b&gt;FedAvg Aggregation&lt;/b&gt;&lt;br/&gt;Computes global average:&lt;br/&gt;gamma_bar = (1/N) * sum(gamma_i)&lt;br/&gt;Syncs every K = 5 steps" vertex="1">
+          <mxGeometry height="110" width="320" x="250" y="65" as="geometry" />
         </mxCell>
-        <mxCell id="6" parent="1" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn-icons-png.flaticon.com/512/1110/1110531.png;" value="" vertex="1">
-          <mxGeometry height="60" width="60" x="140" y="220" as="geometry" />
+        <mxCell id="laplacian_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=13;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;" value="&lt;b&gt;Network Topology&lt;/b&gt;&lt;br/&gt;Graph G = (V, E),  N = 4 nodes&lt;br/&gt;Laplacian  L = D - A&lt;br/&gt;Connected: spectral gap &gt; 0" vertex="1">
+          <mxGeometry height="110" width="310" x="610" y="65" as="geometry" />
         </mxCell>
-        <mxCell id="7" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;Agent 1&lt;br&gt;Local MPC QP&lt;br&gt;&amp;gamma;1 weight&lt;/font&gt;" vertex="1">
-          <mxGeometry height="50" width="80" x="130" y="280" as="geometry" />
+        <mxCell id="round_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=13;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;" value="&lt;b&gt;Communication Protocol&lt;/b&gt;&lt;br/&gt;Collect gamma_i from all agents&lt;br/&gt;Aggregate and broadcast gamma_bar&lt;br/&gt;Privacy: only scalar gamma shared" vertex="1">
+          <mxGeometry height="110" width="310" x="960" y="65" as="geometry" />
         </mxCell>
-        <mxCell id="8" parent="1" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn-icons-png.flaticon.com/512/1110/1110531.png;" value="" vertex="1">
-          <mxGeometry height="60" width="60" x="380" y="220" as="geometry" />
+        <mxCell id="stability_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=13;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;" value="&lt;b&gt;Convergence Guarantee&lt;/b&gt;&lt;br/&gt;Consensus error bounded by epsilon&lt;br/&gt;Hessian of J positive definite&lt;br/&gt;Queue Lyapunov stable" vertex="1">
+          <mxGeometry height="110" width="280" x="1310" y="65" as="geometry" />
         </mxCell>
-        <mxCell id="9" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;Agent i&lt;br&gt;Local MPC QP&lt;br&gt;&amp;gamma;i weight&lt;/font&gt;" vertex="1">
-          <mxGeometry height="50" width="80" x="370" y="280" as="geometry" />
+        <mxCell id="L2_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;arcSize=3;opacity=50;" value="" vertex="1">
+          <mxGeometry height="440" width="1570" x="40" y="285" as="geometry" />
         </mxCell>
-        <mxCell id="10" parent="1" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn-icons-png.flaticon.com/512/1110/1110531.png;" value="" vertex="1">
-          <mxGeometry height="60" width="60" x="620" y="220" as="geometry" />
+        <mxCell id="L2_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1;fontColor=#234f1e;" value="LAYER 2 — Distributed Multi-Agent Control  (N = 4 Intersection Agents)" vertex="1">
+          <mxGeometry height="28" width="700" x="55" y="293" as="geometry" />
         </mxCell>
-        <mxCell id="11" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;Agent N&lt;br&gt;Local MPC QP&lt;br&gt;&amp;gamma;n weight&lt;/font&gt;" vertex="1">
-          <mxGeometry height="50" width="80" x="610" y="280" as="geometry" />
+        <mxCell id="A1_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#82b366;arcSize=5;" value="" vertex="1">
+          <mxGeometry height="380" width="360" x="55" y="325" as="geometry" />
         </mxCell>
-        <mxCell id="12" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="240" y="250" as="sourcePoint" />
-            <mxPoint x="340" y="250" as="targetPoint" />
-          </mxGeometry>
+        <mxCell id="A1_hdr" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontStyle=1;fontSize=14;fontColor=#234f1e;" value="&lt;b&gt;Agent 1 — Intersection 1&lt;/b&gt;" vertex="1">
+          <mxGeometry height="26" width="340" x="65" y="333" as="geometry" />
         </mxCell>
-        <mxCell id="13" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="480" y="250" as="sourcePoint" />
-            <mxPoint x="580" y="250" as="targetPoint" />
-          </mxGeometry>
+        <mxCell id="A1_lstm" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;LSTM Forecaster&lt;/b&gt;&lt;br/&gt;Predicts demand d over horizon H&lt;br/&gt;Online learning via SGD&lt;br/&gt;16 hidden units,  lr = 0.005" vertex="1">
+          <mxGeometry height="95" width="335" x="68" y="368" as="geometry" />
         </mxCell>
-        <mxCell id="14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="" vertex="1">
-          <mxGeometry height="180" width="300" x="270" y="390" as="geometry" />
+        <mxCell id="A1_mpc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;MPC Solver (CVXPY / SCS)&lt;/b&gt;&lt;br/&gt;Minimises congestion + emissions&lt;br/&gt;Horizon H = 5,  Capacity mu = 15&lt;br/&gt;Outputs optimal green time  g*" vertex="1">
+          <mxGeometry height="95" width="335" x="68" y="478" as="geometry" />
         </mxCell>
-        <mxCell id="15" parent="1" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn-icons-png.flaticon.com/512/3208/3208726.png;" value="" vertex="1">
-          <mxGeometry height="60" width="60" x="390" y="420" as="geometry" />
+        <mxCell id="A1_carbon" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;Carbon Budget Monitor&lt;/b&gt;&lt;br/&gt;Tracks idle + throughput emissions&lt;br/&gt;Escalates gamma_i by 10% if budget exceeded&lt;br/&gt;Budget B = 15,  eta = 0.5,  rho = 0.36" vertex="1">
+          <mxGeometry height="95" width="335" x="68" y="588" as="geometry" />
         </mxCell>
-        <mxCell id="16" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;b&gt;Federated Aggregation Server&lt;/b&gt;" vertex="1">
-          <mxGeometry height="30" width="200" x="320" y="490" as="geometry" />
+        <mxCell id="A2_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#82b366;arcSize=5;" value="" vertex="1">
+          <mxGeometry height="380" width="360" x="445" y="325" as="geometry" />
         </mxCell>
-        <mxCell id="17" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="Federated Averaging (FedAvg)&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;Global &amp;gamma; Aggregation&lt;/font&gt;" vertex="1">
-          <mxGeometry height="40" width="200" x="320" y="520" as="geometry" />
+        <mxCell id="A2_hdr" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontStyle=1;fontSize=14;fontColor=#234f1e;" value="&lt;b&gt;Agent 2 — Intersection 2&lt;/b&gt;" vertex="1">
+          <mxGeometry height="26" width="340" x="455" y="333" as="geometry" />
         </mxCell>
-        <mxCell id="18" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;entryX=0.06;entryY=-0.011;entryDx=0;entryDy=0;entryPerimeter=0;" target="14" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="170" y="340" as="sourcePoint" />
-            <mxPoint x="220" y="290" as="targetPoint" />
-          </mxGeometry>
+        <mxCell id="A2_lstm" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;LSTM Forecaster&lt;/b&gt;&lt;br/&gt;Predicts demand d over horizon H&lt;br/&gt;Autoregressive multi-step output&lt;br/&gt;Lookback window: 10 steps" vertex="1">
+          <mxGeometry height="95" width="335" x="458" y="368" as="geometry" />
         </mxCell>
-        <mxCell id="19" connectable="0" parent="18" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Upload &amp;gamma;1" vertex="1">
-          <mxGeometry relative="1" x="0.1039" y="-2" as="geometry">
+        <mxCell id="A2_mpc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;MPC Solver (CVXPY / SCS)&lt;/b&gt;&lt;br/&gt;QP form: min x&#39;Px + c&#39;x&lt;br/&gt;alpha = 1.0,  beta = 0.5&lt;br/&gt;Strictly convex (Hessian pos. def.)" vertex="1">
+          <mxGeometry height="95" width="335" x="458" y="478" as="geometry" />
+        </mxCell>
+        <mxCell id="A2_carbon" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;Carbon Budget Monitor&lt;/b&gt;&lt;br/&gt;Dual-source: idle + throughput&lt;br/&gt;EDP = q x E  (Pareto trade-off metric)&lt;br/&gt;Triggers gamma escalation at threshold" vertex="1">
+          <mxGeometry height="95" width="335" x="458" y="588" as="geometry" />
+        </mxCell>
+        <mxCell id="A3_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#82b366;arcSize=5;" value="" vertex="1">
+          <mxGeometry height="380" width="360" x="835" y="325" as="geometry" />
+        </mxCell>
+        <mxCell id="A3_hdr" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontStyle=1;fontSize=14;fontColor=#234f1e;" value="&lt;b&gt;Agent 3 — Intersection 3&lt;/b&gt;" vertex="1">
+          <mxGeometry height="26" width="340" x="845" y="333" as="geometry" />
+        </mxCell>
+        <mxCell id="A3_lstm" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;LSTM Forecaster&lt;/b&gt;&lt;br/&gt;Forget / Input / Output gates&lt;br/&gt;Cell state update: c_t = f*c_{t-1} + i*c~&lt;br/&gt;n_h = 16,  lr = 0.005" vertex="1">
+          <mxGeometry height="95" width="335" x="848" y="368" as="geometry" />
+        </mxCell>
+        <mxCell id="A3_mpc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;MPC Solver (CVXPY / SCS)&lt;/b&gt;&lt;br/&gt;Queue: q_{t+1} &gt;= q_t + d_t - mu*g_t&lt;br/&gt;Service: s = mu * g,   g_max = 0.75&lt;br/&gt;Complexity: O(H^3) per step" vertex="1">
+          <mxGeometry height="95" width="335" x="848" y="478" as="geometry" />
+        </mxCell>
+        <mxCell id="A3_carbon" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;Carbon Budget Monitor&lt;/b&gt;&lt;br/&gt;Idle: E_idle = eta * q&lt;br/&gt;Throughput: E_tp = rho * mu * g&lt;br/&gt;Budget B = 15,  escalates gamma by 10%" vertex="1">
+          <mxGeometry height="95" width="335" x="848" y="588" as="geometry" />
+        </mxCell>
+        <mxCell id="A4_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#82b366;arcSize=5;" value="" vertex="1">
+          <mxGeometry height="380" width="370" x="1225" y="325" as="geometry" />
+        </mxCell>
+        <mxCell id="A4_hdr" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontStyle=1;fontSize=14;fontColor=#234f1e;" value="&lt;b&gt;Agent 4 — Intersection 4&lt;/b&gt;" vertex="1">
+          <mxGeometry height="26" width="350" x="1235" y="333" as="geometry" />
+        </mxCell>
+        <mxCell id="A4_lstm" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;LSTM Forecaster&lt;/b&gt;&lt;br/&gt;Hidden: h_t = o_t * tanh(c_t)&lt;br/&gt;Independent per-agent training&lt;br/&gt;No LSTM sharing via federated server" vertex="1">
+          <mxGeometry height="95" width="348" x="1238" y="368" as="geometry" />
+        </mxCell>
+        <mxCell id="A4_mpc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;MPC Solver (CVXPY / SCS)&lt;/b&gt;&lt;br/&gt;Full objective: (alpha+gamma*eta)*q + beta*q^2&lt;br/&gt;+ gamma*rho*mu*g  minimised over H steps&lt;br/&gt;Applies only first action  g* (receding horizon)" vertex="1">
+          <mxGeometry height="95" width="348" x="1238" y="478" as="geometry" />
+        </mxCell>
+        <mxCell id="A4_carbon" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;Carbon Budget Monitor&lt;/b&gt;&lt;br/&gt;Lyapunov function V = sum(q_i^2)&lt;br/&gt;Decreasing in expectation under MPC&lt;br/&gt;Queue stability guaranteed when load &lt; capacity" vertex="1">
+          <mxGeometry height="95" width="348" x="1238" y="588" as="geometry" />
+        </mxCell>
+        <mxCell id="L3_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;arcSize=3;opacity=50;" value="" vertex="1">
+          <mxGeometry height="290" width="1570" x="40" y="780" as="geometry" />
+        </mxCell>
+        <mxCell id="L3_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1;fontColor=#4a1272;" value="LAYER 3 — Physical Road Network &amp; Traffic Environment" vertex="1">
+          <mxGeometry height="28" width="620" x="55" y="788" as="geometry" />
+        </mxCell>
+        <mxCell id="N1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#9673a6;strokeColor=#6d4fa0;fontColor=#ffffff;fontSize=13;fontStyle=1;" value="&lt;b&gt;Node 1&lt;/b&gt;&lt;br/&gt;q1,  g1*" vertex="1">
+          <mxGeometry height="70" width="120" x="150" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="N2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#9673a6;strokeColor=#6d4fa0;fontColor=#ffffff;fontSize=13;fontStyle=1;" value="&lt;b&gt;Node 2&lt;/b&gt;&lt;br/&gt;q2,  g2*" vertex="1">
+          <mxGeometry height="70" width="120" x="550" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="N3" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#9673a6;strokeColor=#6d4fa0;fontColor=#ffffff;fontSize=13;fontStyle=1;" value="&lt;b&gt;Node 3&lt;/b&gt;&lt;br/&gt;q3,  g3*" vertex="1">
+          <mxGeometry height="70" width="120" x="950" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="N4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#9673a6;strokeColor=#6d4fa0;fontColor=#ffffff;fontSize=13;fontStyle=1;" value="&lt;b&gt;Node 4&lt;/b&gt;&lt;br/&gt;q4,  g4*" vertex="1">
+          <mxGeometry height="70" width="120" x="1350" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="E12" edge="1" parent="1" source="N1" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;strokeWidth=2.5;startArrow=open;endArrow=open;startFill=0;endFill=0;" target="N2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E12_lbl" connectable="0" parent="E12" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;fontSize=12;" value="A12 = 1" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="20" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="410" y="340" as="sourcePoint" />
-            <mxPoint x="410" y="390" as="targetPoint" />
-          </mxGeometry>
+        <mxCell id="E23" edge="1" parent="1" source="N2" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;strokeWidth=2.5;startArrow=open;endArrow=open;startFill=0;endFill=0;" target="N3">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="21" connectable="0" parent="20" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Upload &amp;gamma;i" vertex="1">
-          <mxGeometry relative="1" x="-0.27" as="geometry">
-            <mxPoint y="7" as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="22" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="650" y="340" as="sourcePoint" />
-            <mxPoint x="550" y="390" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="23" connectable="0" parent="22" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Upload &amp;gamma;n" vertex="1">
-          <mxGeometry relative="1" x="0.2185" as="geometry">
+        <mxCell id="E23_lbl" connectable="0" parent="E23" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;fontSize=12;" value="A23 = 1" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#d1d5db;strokeWidth=2;" value="" vertex="1">
-          <mxGeometry height="740" width="1020" x="40" y="40" as="geometry" />
+        <mxCell id="E34" edge="1" parent="1" source="N3" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;strokeWidth=2.5;startArrow=open;endArrow=open;startFill=0;endFill=0;" target="N4">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-24" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 20px; color: #1e3a8a;&quot;&gt;Federated Graph-Based Multi-Agent Traffic Control Architecture&lt;/font&gt;&lt;/b&gt;" vertex="1">
-          <mxGeometry height="40" width="600" x="250" y="60" as="geometry" />
+        <mxCell id="E34_lbl" connectable="0" parent="E34" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;fontSize=12;" value="A34 = 1" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-25" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef2ff;strokeColor=#4f46e5;strokeWidth=2;dashed=1;" value="" vertex="1">
-          <mxGeometry height="180" width="900" x="100" y="120" as="geometry" />
+        <mxCell id="phys_demand" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0fa;strokeColor=#9673a6;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;Demand Model&lt;/b&gt;&lt;br/&gt;Arrivals ~ Poisson(lambda = 7)&lt;br/&gt;Shock at t=20: demand x 3&lt;br/&gt;Queue state fed back to agents" vertex="1">
+          <mxGeometry height="120" width="280" x="60" y="920" as="geometry" />
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-26" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px; color: #4338ca;&quot;&gt;Global Aggregation Layer (Cloud Server)&lt;/font&gt;&lt;/b&gt;" vertex="1">
-          <mxGeometry height="30" width="300" x="120" y="130" as="geometry" />
+        <mxCell id="phys_graph" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0fa;strokeColor=#9673a6;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;Graph Structure&lt;/b&gt;&lt;br/&gt;G = (V, E),  4 nodes, 3 edges&lt;br/&gt;Adjacency matrix A in R^{4x4}&lt;br/&gt;Laplacian L = D - A" vertex="1">
+          <mxGeometry height="120" width="280" x="380" y="920" as="geometry" />
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-27" parent="1" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn-icons-png.flaticon.com/512/2885/2885417.png;" value="" vertex="1">
-          <mxGeometry height="80" width="80" x="510" y="160" as="geometry" />
+        <mxCell id="phys_emission" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0fa;strokeColor=#9673a6;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;Emission Feedback&lt;/b&gt;&lt;br/&gt;E = eta*q + rho*mu*g  per step&lt;br/&gt;Cumulative vs. budget B = 15&lt;br/&gt;Triggers gamma escalation in Layer 2" vertex="1">
+          <mxGeometry height="120" width="290" x="700" y="920" as="geometry" />
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-28" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4f46e5;align=center;verticalAlign=middle;" value="&lt;b&gt;Federated Averaging (FedAvg)&lt;/b&gt;&lt;br&gt;&lt;i&gt;Aggregates Local Carbon Weights:&lt;/i&gt;&lt;br&gt;&lt;font face=&quot;Courier New&quot;&gt;&amp;gamma;_global = (1/N) &amp;sum; &amp;gamma;_i&lt;/font&gt;" vertex="1">
-          <mxGeometry height="60" width="240" x="640" y="170" as="geometry" />
+        <mxCell id="phys_tools" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0fa;strokeColor=#9673a6;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;Implementation&lt;/b&gt;&lt;br/&gt;Python 3.11 + CVXPY 1.4 + SCS&lt;br/&gt;NumPy LSTM,  Matplotlib 3.8&lt;br/&gt;SciPy sparse Laplacian" vertex="1">
+          <mxGeometry height="120" width="280" x="1030" y="920" as="geometry" />
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-29" edge="1" parent="1" source="ZdpK94Co9Po_VEtZ5y6S-27" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#4f46e5;entryX=0;entryY=0.5;" target="ZdpK94Co9Po_VEtZ5y6S-28" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry" />
+        <mxCell id="phys_complexity" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0fa;strokeColor=#9673a6;fontSize=13;align=left;verticalAlign=middle;spacingLeft=8;" value="&lt;b&gt;Computational Cost&lt;/b&gt;&lt;br/&gt;QP vars: 2H per agent&lt;br/&gt;SCS: O(H^3) per step&lt;br/&gt;Real-time feasible (&lt; 0.2 s at H=10)" vertex="1">
+          <mxGeometry height="120" width="240" x="1350" y="920" as="geometry" />
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-30" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#16a34a;strokeWidth=2;dashed=1;" value="" vertex="1">
-          <mxGeometry height="260" width="900" x="100" y="340" as="geometry" />
+        <mxCell id="arr_s_a1_dn" edge="1" parent="1" source="server" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;endArrow=block;endFill=1;startArrow=none;fontSize=12;fontColor=#23527c;" target="A1_box" value="gamma_bar">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="165" y="258" />
+              <mxPoint x="235" y="258" />
+              <mxPoint x="235" y="325" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-31" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px; color: #15803d;&quot;&gt;Decentralized Multi-Agent Layer (Edge Nodes / Controllers)&lt;/font&gt;&lt;/b&gt;" vertex="1">
-          <mxGeometry height="30" width="400" x="120" y="350" as="geometry" />
+        <mxCell id="arr_s_a2_dn" edge="1" parent="1" source="fedavg_eq" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;endArrow=block;endFill=1;startArrow=none;fontSize=12;fontColor=#23527c;" target="A2_box" value="gamma_bar">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="410" y="258" />
+              <mxPoint x="625" y="258" />
+              <mxPoint x="625" y="325" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-32" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#16a34a;shadow=1;" value="" vertex="1">
-          <mxGeometry height="170" width="240" x="130" y="400" as="geometry" />
+        <mxCell id="arr_s_a3_dn" edge="1" parent="1" source="laplacian_box" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;endArrow=block;endFill=1;startArrow=none;fontSize=12;fontColor=#23527c;" target="A3_box" value="gamma_bar">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="765" y="258" />
+              <mxPoint x="1015" y="258" />
+              <mxPoint x="1015" y="325" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-33" parent="1" style="text;html=1;strokeColor=none;fillColor=#dcfce7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;b&gt;Intersection Agent 1 (Node V1)&lt;/b&gt;" vertex="1">
-          <mxGeometry height="30" width="240" x="130" y="400" as="geometry" />
+        <mxCell id="arr_s_a4_dn" edge="1" parent="1" source="round_box" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;endArrow=block;endFill=1;startArrow=none;fontSize=12;fontColor=#23527c;" target="A4_box" value="gamma_bar">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1115" y="258" />
+              <mxPoint x="1410" y="258" />
+              <mxPoint x="1410" y="325" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-34" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef08a;strokeColor=#ca8a04;" value="&lt;b&gt;Local MPC Solver&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Quadratic Obj. (Queue + Emission)&lt;br&gt;SCS Convex Optimization&lt;/font&gt;" vertex="1">
-          <mxGeometry height="50" width="200" x="150" y="440" as="geometry" />
+        <mxCell id="arr_a1_up" edge="1" parent="1" source="A1_carbon" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;endArrow=open;endFill=0;fontSize=12;fontColor=#234f1e;" target="server" value="&lt;span&gt;gamma_i&lt;/span&gt;">
+          <mxGeometry relative="1" x="0.0377" y="30" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="410" y="636" />
+              <mxPoint x="410" y="248" />
+              <mxPoint x="165" y="248" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-35" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0284c7;" value="Local State: &lt;i&gt;q_1(t)&lt;/i&gt;, Flow Forecast&lt;br&gt;Local Weight: &lt;b&gt;&amp;gamma;_1&lt;/b&gt; (Update Rule)" vertex="1">
-          <mxGeometry height="50" width="200" x="150" y="500" as="geometry" />
+        <mxCell id="arr_a4_up" edge="1" parent="1" source="A4_carbon" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;endArrow=open;endFill=0;fontSize=12;fontColor=#234f1e;" target="round_box" value="gamma_i">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1590" y="636" />
+              <mxPoint x="1590" y="248" />
+              <mxPoint x="1270" y="248" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-36" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#16a34a;shadow=1;" value="" vertex="1">
-          <mxGeometry height="170" width="240" x="430" y="400" as="geometry" />
+        <mxCell id="arr_a1_n1_dn" edge="1" parent="1" source="A1_mpc" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;strokeWidth=2;endArrow=block;endFill=1;fontSize=12;" target="N1" value="g1*">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="410" y="526" />
+              <mxPoint x="410" y="702" />
+              <mxPoint x="210" y="702" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-37" parent="1" style="text;html=1;strokeColor=none;fillColor=#dcfce7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;b&gt;Intersection Agent i (Node Vi)&lt;/b&gt;" vertex="1">
-          <mxGeometry height="30" width="240" x="430" y="400" as="geometry" />
+        <mxCell id="arr_n1_a1_up" edge="1" parent="1" source="N1" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;strokeWidth=2;dashed=1;endArrow=open;endFill=0;fontSize=12;" target="A1_lstm" value="q1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="185" y="778" />
+              <mxPoint x="60" y="778" />
+              <mxPoint x="60" y="416" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-38" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef08a;strokeColor=#ca8a04;" value="&lt;b&gt;Local MPC Solver&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Quadratic Obj. (Queue + Emission)&lt;br&gt;SCS Convex Optimization&lt;/font&gt;" vertex="1">
-          <mxGeometry height="50" width="200" x="450" y="440" as="geometry" />
+        <mxCell id="arr_a2_n2_dn" edge="1" parent="1" source="A2_mpc" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;strokeWidth=2;endArrow=block;endFill=1;fontSize=12;" target="N2" value="g2*">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="800" y="526" />
+              <mxPoint x="800" y="702" />
+              <mxPoint x="610" y="702" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-39" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0284c7;" value="Local State: &lt;i&gt;q_i(t)&lt;/i&gt;, Flow Forecast&lt;br&gt;Local Weight: &lt;b&gt;&amp;gamma;_i&lt;/b&gt; (Update Rule)" vertex="1">
-          <mxGeometry height="50" width="200" x="450" y="500" as="geometry" />
+        <mxCell id="arr_n2_a2_up" edge="1" parent="1" source="N2" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;strokeWidth=2;dashed=1;endArrow=open;endFill=0;fontSize=12;" target="A2_lstm" value="q2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="575" y="778" />
+              <mxPoint x="450" y="778" />
+              <mxPoint x="450" y="416" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-40" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#16a34a;shadow=1;" value="" vertex="1">
-          <mxGeometry height="170" width="240" x="730" y="400" as="geometry" />
+        <mxCell id="arr_a3_n3_dn" edge="1" parent="1" source="A3_mpc" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;strokeWidth=2;endArrow=block;endFill=1;fontSize=12;" target="N3" value="g3*">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1190" y="526" />
+              <mxPoint x="1190" y="702" />
+              <mxPoint x="1010" y="702" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-41" parent="1" style="text;html=1;strokeColor=none;fillColor=#dcfce7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;b&gt;Intersection Agent N (Node VN)&lt;/b&gt;" vertex="1">
-          <mxGeometry height="30" width="240" x="730" y="400" as="geometry" />
+        <mxCell id="arr_n3_a3_up" edge="1" parent="1" source="N3" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;strokeWidth=2;dashed=1;endArrow=open;endFill=0;fontSize=12;" target="A3_lstm" value="q3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="975" y="778" />
+              <mxPoint x="840" y="778" />
+              <mxPoint x="840" y="416" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-42" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef08a;strokeColor=#ca8a04;" value="&lt;b&gt;Local MPC Solver&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Quadratic Obj. (Queue + Emission)&lt;br&gt;SCS Convex Optimization&lt;/font&gt;" vertex="1">
-          <mxGeometry height="50" width="200" x="750" y="440" as="geometry" />
+        <mxCell id="arr_a4_n4_dn" edge="1" parent="1" source="A4_mpc" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;strokeWidth=2;endArrow=block;endFill=1;fontSize=12;" target="N4" value="g4*">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1590" y="526" />
+              <mxPoint x="1590" y="702" />
+              <mxPoint x="1410" y="702" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-43" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0284c7;" value="Local State: &lt;i&gt;q_N(t)&lt;/i&gt;, Flow Forecast&lt;br&gt;Local Weight: &lt;b&gt;&amp;gamma;_N&lt;/b&gt; (Update Rule)" vertex="1">
-          <mxGeometry height="50" width="200" x="750" y="500" as="geometry" />
+        <mxCell id="arr_n4_a4_up" edge="1" parent="1" source="N4" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;strokeWidth=2;dashed=1;endArrow=open;endFill=0;fontSize=12;" target="A4_lstm" value="q4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1375" y="778" />
+              <mxPoint x="1230" y="778" />
+              <mxPoint x="1230" y="416" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-44" edge="1" parent="1" source="ZdpK94Co9Po_VEtZ5y6S-32" style="endArrow=classic;startArrow=classic;html=1;strokeWidth=2;dashed=1;strokeColor=#6b7280;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="ZdpK94Co9Po_VEtZ5y6S-36" value="&lt;font style=&quot;font-size:10px;&quot;&gt;Adjacency Matrix A&lt;br&gt;Traffic Flow Transfer&lt;/font&gt;">
-          <mxGeometry height="50" relative="1" width="50" as="geometry" />
+        <mxCell id="legend_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#c7a600;arcSize=5;" value="" vertex="1">
+          <mxGeometry height="55" width="900" x="40" y="1085" as="geometry" />
         </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-45" edge="1" parent="1" source="ZdpK94Co9Po_VEtZ5y6S-36" style="endArrow=classic;startArrow=classic;html=1;strokeWidth=2;dashed=1;strokeColor=#6b7280;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="ZdpK94Co9Po_VEtZ5y6S-40" value="&lt;font style=&quot;font-size:10px;&quot;&gt;Adjacency Matrix A&lt;br&gt;Traffic Flow Transfer&lt;/font&gt;">
-          <mxGeometry height="50" relative="1" width="50" as="geometry" />
-        </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-46" edge="1" parent="1" source="ZdpK94Co9Po_VEtZ5y6S-32" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#4338ca;exitX=0.5;exitY=0;entryX=0.15;entryY=1;" target="ZdpK94Co9Po_VEtZ5y6S-25" value="Upload &amp;gamma;_1(t)">
-          <mxGeometry height="50" relative="1" width="50" as="geometry" />
-        </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-47" edge="1" parent="1" source="ZdpK94Co9Po_VEtZ5y6S-25" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#dc2626;exitX=0.2;exitY=1;entryX=0.3;entryY=0;" target="ZdpK94Co9Po_VEtZ5y6S-32" value="Download &amp;gamma;_global(t+1)">
-          <mxGeometry height="50" relative="1" width="50" as="geometry" />
-        </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-48" edge="1" parent="1" source="ZdpK94Co9Po_VEtZ5y6S-36" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#4338ca;exitX=0.3;exitY=0;entryX=0.45;entryY=1;" target="ZdpK94Co9Po_VEtZ5y6S-25" value="Upload &amp;gamma;_i(t)">
-          <mxGeometry height="50" relative="1" width="50" as="geometry" />
-        </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-49" edge="1" parent="1" source="ZdpK94Co9Po_VEtZ5y6S-25" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#dc2626;exitX=0.55;exitY=1;entryX=0.7;entryY=0;" target="ZdpK94Co9Po_VEtZ5y6S-36" value="Download &amp;gamma;_global(t+1)">
-          <mxGeometry height="50" relative="1" width="50" as="geometry" />
-        </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-50" edge="1" parent="1" source="ZdpK94Co9Po_VEtZ5y6S-40" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#4338ca;exitX=0.5;exitY=0;entryX=0.85;entryY=1;" target="ZdpK94Co9Po_VEtZ5y6S-25" value="Upload &amp;gamma;_N(t)">
-          <mxGeometry height="50" relative="1" width="50" as="geometry" />
-        </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-51" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#ef4444;strokeWidth=2;dashed=1;" value="" vertex="1">
-          <mxGeometry height="120" width="900" x="100" y="640" as="geometry" />
-        </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-52" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px; color: #b91c1c;&quot;&gt;Physical Traffic Environment (Plant Dynamics)&lt;/font&gt;&lt;/b&gt;" vertex="1">
-          <mxGeometry height="30" width="400" x="120" y="650" as="geometry" />
-        </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-53" parent="1" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn-icons-png.flaticon.com/512/3063/3063167.png;" value="" vertex="1">
-          <mxGeometry height="60" width="60" x="180" y="670" as="geometry" />
-        </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-54" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ef4444;" value="&lt;b&gt;Green Time Execution (Action: g_1)&lt;/b&gt;" vertex="1">
-          <mxGeometry height="40" width="220" x="250" y="680" as="geometry" />
-        </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-55" parent="1" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn-icons-png.flaticon.com/512/3063/3063167.png;" value="" vertex="1">
-          <mxGeometry height="60" width="60" x="630" y="670" as="geometry" />
-        </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-56" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#ef4444;" value="&lt;b&gt;Queue &amp;amp; Flow Observers (State: q_i)&lt;/b&gt;" vertex="1">
-          <mxGeometry height="40" width="250" x="700" y="680" as="geometry" />
-        </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-57" edge="1" parent="1" source="ZdpK94Co9Po_VEtZ5y6S-36" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#16a34a;exitX=0.3;exitY=1;entryX=0.2;entryY=0;" target="ZdpK94Co9Po_VEtZ5y6S-51" value="Apply Optimal Phase &lt;b&gt;g*(t)&lt;/b&gt;">
-          <mxGeometry height="50" relative="1" width="50" as="geometry" />
-        </mxCell>
-        <mxCell id="ZdpK94Co9Po_VEtZ5y6S-58" edge="1" parent="1" source="ZdpK94Co9Po_VEtZ5y6S-51" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#ef4444;exitX=0.8;exitY=0;entryX=0.7;entryY=1;" target="ZdpK94Co9Po_VEtZ5y6S-36" value="Read Real Queue &lt;b&gt;q(t+1)&lt;/b&gt;">
-          <mxGeometry height="50" relative="1" width="50" as="geometry" />
+        <mxCell id="legend_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;" value="&lt;b&gt;Legend:&lt;/b&gt;   Purple solid arrow = Control output (g*)     Blue dashed arrow = FedAvg broadcast (gamma_bar)     Red dashed arrow = State feedback (q)     Green arrow = gamma upload to server" vertex="1">
+          <mxGeometry height="38" width="870" x="55" y="1093" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

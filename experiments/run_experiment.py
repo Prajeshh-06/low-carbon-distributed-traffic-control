@@ -2,95 +2,103 @@
 Experiment Runner
 =================
 
-Convenience wrapper that runs both the baseline and carbon-aware simulations
-and returns their results for comparison.
+Convenience wrapper that runs all six simulation configurations and returns
+their results for comparison.  Demand streams are sourced from the real
+UCI Metro Interstate Traffic Volume dataset (DOI: 10.24432/C5X60B).
 """
 
 from experiments.simulation import run_simulation
+from utils.dataset_loader import load_demand_streams
 
 
 def run_experiment(num_agents=4, steps=100, seed=42, shock_step=20, **kwargs):
     """
     Execute multiple configurations of simulations for comparative analysis.
 
+    All configurations share the same real-data demand streams so that
+    differences in results are attributable solely to the controller
+    parameters (gamma, horizon, federated sync, LSTM), not to demand
+    variability.
+
     Returns
     -------
     dict
-        Dictionary containing results for each configuration.
+        Dictionary containing results for each configuration key:
+        'baseline', 'carbon', 'high_gamma', 'short_horizon',
+        'long_horizon', 'lstm_carbon'.
     """
-    baseline = run_simulation(
+    # ── Load real traffic data (cached after first call) ──────────────────────
+    # Need steps + max_horizon rows per agent; max horizon used is 10.
+    max_horizon = 10
+    demand_streams = load_demand_streams(
         num_agents=num_agents,
         steps=steps,
+        horizon=max_horizon,
+        seed=seed,
+    )
+
+    def _run(horizon=5, **kw):
+        """Helper: slice demand to correct horizon length before passing."""
+        needed = steps + horizon
+        ds = demand_streams[:, :needed]
+        return run_simulation(
+            num_agents=num_agents,
+            steps=steps,
+            seed=seed,
+            shock_step=shock_step,
+            horizon=horizon,
+            demand_streams=ds,
+            **kw,
+        )
+
+    baseline = _run(
         gamma=0.0,
         federated_sync=False,
-        seed=seed,
         horizon=5,
-        shock_step=shock_step,
         **kwargs,
     )
 
-    carbon = run_simulation(
-        num_agents=num_agents,
-        steps=steps,
+    carbon = _run(
         gamma=0.9,
         federated_sync=True,
-        seed=seed,
         horizon=5,
-        shock_step=shock_step,
         **kwargs,
     )
 
-    high_gamma = run_simulation(
-        num_agents=num_agents,
-        steps=steps,
+    high_gamma = _run(
         gamma=1.5,
         federated_sync=True,
-        seed=seed,
         horizon=5,
-        shock_step=shock_step,
         **kwargs,
     )
 
-    short_horizon = run_simulation(
-        num_agents=num_agents,
-        steps=steps,
+    short_horizon = _run(
         gamma=0.9,
         federated_sync=True,
-        seed=seed,
         horizon=3,
-        shock_step=shock_step,
         **kwargs,
     )
 
-    long_horizon = run_simulation(
-        num_agents=num_agents,
-        steps=steps,
+    long_horizon = _run(
         gamma=0.9,
         federated_sync=True,
-        seed=seed,
         horizon=10,
-        shock_step=shock_step,
         **kwargs,
     )
 
-    # LSTM-enhanced: Carbon-aware MPC with learned demand forecasting
-    lstm_carbon = run_simulation(
-        num_agents=num_agents,
-        steps=steps,
+    lstm_carbon = _run(
         gamma=0.9,
         federated_sync=True,
-        seed=seed,
         horizon=5,
-        shock_step=shock_step,
         use_lstm=True,
         **kwargs,
     )
 
     return {
-        "baseline": baseline,
-        "carbon": carbon,
-        "high_gamma": high_gamma,
+        "baseline":      baseline,
+        "carbon":        carbon,
+        "high_gamma":    high_gamma,
         "short_horizon": short_horizon,
-        "long_horizon": long_horizon,
-        "lstm_carbon": lstm_carbon,
+        "long_horizon":  long_horizon,
+        "lstm_carbon":   lstm_carbon,
     }

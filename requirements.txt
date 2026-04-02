@@ -2,3 +2,4 @@ numpy
 cvxpy
 matplotlib
 streamlit
+ucimlrepo

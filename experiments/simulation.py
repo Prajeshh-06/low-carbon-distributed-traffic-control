@@ -32,6 +32,7 @@ def run_simulation(
     shock_step=20,
     shock_factor=3.0,
     use_lstm=False,
+    demand_streams=None,
 ):
     """
     Run a full multi-agent traffic simulation.
@@ -100,8 +101,13 @@ def run_simulation(
         for i in range(num_agents)
     ] if use_lstm else None
 
-    # Pre-generate demand streams  (Poisson, shape: agents × steps+horizon)
-    demand_streams = rng.poisson(lam=mean_demand, size=(num_agents, steps + horizon))
+    # Demand streams: use real data if provided, else generate Poisson
+    if demand_streams is not None:
+        # Real dataset path — shape must be (num_agents, steps + horizon)
+        demand_streams = np.asarray(demand_streams, dtype=float)
+    else:
+        # Synthetic fallback: Poisson(lambda=mean_demand)
+        demand_streams = rng.poisson(lam=mean_demand, size=(num_agents, steps + horizon)).astype(float)
 
     # Metrics accumulators
     total_emissions = []
