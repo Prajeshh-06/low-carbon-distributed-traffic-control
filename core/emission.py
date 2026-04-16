@@ -23,7 +23,7 @@ import numpy as np
 
 
 def emission_model(queue, green_time=0.5, capacity=10.0,
-                   idle_factor=0.5, throughput_factor=0.3):
+                   idle_factor=0.2, throughput_factor=4.5):
     """
     Compute total carbon emissions (idle + throughput).
 

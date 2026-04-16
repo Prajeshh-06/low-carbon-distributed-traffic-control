@@ -66,30 +66,30 @@ def run_experiment(num_agents=4, steps=100, seed=42, shock_step=20, **kwargs):
     )
 
     high_gamma = _run(
-        gamma=1.5,
+        gamma=1.8,
         federated_sync=True,
         horizon=5,
         **kwargs,
     )
 
     short_horizon = _run(
-        gamma=0.9,
+        gamma=0.6,
         federated_sync=True,
         horizon=3,
         **kwargs,
     )
 
     long_horizon = _run(
-        gamma=0.9,
+        gamma=1.2,
         federated_sync=True,
-        horizon=10,
+        horizon=8,
         **kwargs,
     )
 
     lstm_carbon = _run(
-        gamma=0.9,
+        gamma=1.05,
         federated_sync=True,
-        horizon=5,
+        horizon=6,
         use_lstm=True,
         **kwargs,
     )

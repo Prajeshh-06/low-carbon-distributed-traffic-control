@@ -56,3 +56,9 @@ comparison_plot.png
 # Binaries
 tectonic.exe
 architecture.pdf
+
+DUMBO/
+PAPERS/
+REPORT/
+*.zip
+*.docx

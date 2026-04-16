@@ -37,11 +37,11 @@ def solve_mpc(
     demand_forecast,
     horizon,
     capacity,
-    alpha=1.0,
-    beta=0.5,
+    alpha=0.1,
+    beta=0.01,
     gamma=0.0,
-    idle_factor=0.5,
-    max_green=0.75,
+    idle_factor=0.2,
+    max_green=0.85,
 ):
     """
     Solve a receding-horizon MPC for one intersection.
@@ -114,7 +114,7 @@ def solve_mpc(
     # emissions (fuel burned while driving through).  This creates a genuine
     # trade-off — baseline (γ=0) maximises throughput, while carbon-aware
     # mode balances queue clearance against overall emissions.
-    throughput_factor = 0.36  # emission per vehicle actually served
+    throughput_factor = 4.5  # emission per vehicle actually served
 
     congestion_cost = alpha * cp.sum(q)
     delay_cost = beta * cp.sum_squares(q)

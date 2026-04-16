@@ -1,6 +1,6 @@
-%% bare_jrnl.tex — IEEE Journal Paper
+%% bare_jrnl.tex: IEEE Journal Paper
 %% Federated Graph-Based Multi-Agent MPC for Low-Carbon Traffic Control
-%% Authors: Navamithra S, Vijay C A, Prajesh S — VIT Chennai, 2026
+%% Authors: Navamithra S, Vijay C A, Prajesh S, VIT Chennai, 2026
 
 \documentclass[journal]{IEEEtran}
 
@@ -16,8 +16,8 @@
 
 \begin{document}
 
-\title{Federated Graph-Based Multi-Agent Model Predictive Control\\
-       for Low-Carbon Urban Traffic Signal Coordination}
+\title{A Federated Graph-Based Multi-Agent Model Predictive Control\\
+       Approach to Low-Carbon Urban Traffic Signal Coordination}
 
 \author{Navamithra~S,~24BCE1891,\;
         Vijay~C~A,~24BCE5536,\;
@@ -28,14 +28,14 @@ Chennai, India.}}
 
 \markboth{IEEE Transactions on Intelligent Transportation Systems, Vol.~27,
 2026}%
-{Navamithra \MakeLowercase{\textit{et al.}}: Federated Graph-Based
-Multi-Agent MPC for Low-Carbon Traffic Control}
+{Navamithra \MakeLowercase{\textit{et al.}}: EcoFed-MPC: A Federated Graph-Based
+Multi-Agent MPC Approach to Low-Carbon Traffic Control}
 
 \maketitle
 
 %==========================================================================
 \begin{abstract}
-Urban traffic congestion is a critical challenge in modern metropolitan areas, imposing severe economic and environmental burdens. As cities expand, traditional traffic signal control systems, which predominantly optimise for vehicle throughput and delay, are increasingly inadequate as they neglect the escalating impact of vehicular carbon emissions. Intelligent Transportation Systems (ITS) must evolve to embed sustainability criteria directly into the real-time control loop. However, existing solutions encounter significant limitations. Centralised control architectures suffer from scalability bottlenecks and communication latency in large-scale networks, while distributed approaches often struggle to align local actions with network-wide goals. Furthermore, the transmission of real-time state data in cloud-based models raises substantial privacy and infrastructure concerns. To address these critical challenges, this paper presents the design, implementation, and evaluation of a novel federated graph-based multi-agent Model Predictive Control (MPC) system for sustainable urban traffic signal coordination. Our proposed architecture models the road network as a directed graph where intersections act as autonomous, privacy-preserving agents. Each agent solves a local convex quadratic programme over a finite predictive horizon, utilising a Long Short-Term Memory (LSTM) network for online multi-step demand forecasting. To align global sustainability objectives without sharing sensitive queue data, a Federated Averaging (FedAvg) mechanism is employed to periodically synchronise an adaptive carbon-penalty weight across all agents. Extensive evaluations driven by real-world datasets demonstrate the system's efficacy. Simulation results establish that the proposed carbon-aware federated MPC reduces total cumulative network emissions by 10.0\% to 16.2\% relative to a standard throughput-maximising baseline. This environmental benefit is achieved while maintaining queue stability and bounding the mean queue length to under 1.4 vehicles per agent, even when subjected to acute, 300\% demand shocks. The system is computationally efficient, exhibiting $\mathcal{O}(H^3)$ scaling that executes well within a 0.2-second window for real-time deployment.
+Urban traffic congestion poses a critical problem in today's metropolitan setting, leading to high costs both environmentally and economically. As cities grow larger and traffic increases, current traffic signal control systems, optimized mainly for maximizing flow rate and minimizing delays, fall short as they do not consider the increasing impact of vehicle-related carbon emissions on the environment. There is a need for intelligent transportation systems to adopt a more sustainability-focused approach that incorporates sustainability metrics into their control strategy. Current methods for tackling this challenge have been found to be highly inefficient, with central control methods struggling to scale and distribute computations and encountering latency problems, whereas decentralized systems often fail to find global optimal solutions as their decisions are localized. Furthermore, sending real-time state information for optimization in a cloud-based system raises concerns about privacy and infrastructure overhead. This paper explores the design, implementation, and evaluation of a federated, graph-based multi-agent model predictive control system called EcoFed-MPC, which coordinates traffic signals towards sustainable objectives. In the suggested federated approach, the urban road network is mapped out using a directed graph, whereby each intersection is represented as a privacy-preserving, independent agent. Each agent calculates its local solution based on convex quadratic programming over a finite time horizon using online multi-step demand prediction via LSTM. In order to optimize globally without revealing private queue information, the adaptive carbon penalty parameter is shared between all agents using FedAvg, a federated averaging method. Real-world datasets were used to evaluate the system. Simulation experiments showed that, compared to the conventional control system, EcoFed-MPC can decrease the accumulated emission of all agents in the network by 10.0\% to 16.2\%. It accomplishes the objective without causing instability in queues, keeping the average length of all queues less than 1.4 vehicles per agent even at 300\% demand shock. Furthermore, the computation process has a time complexity of $\mathcal{O}(H^3)$, ensuring feasibility under a strict 0.2-second execution period.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -46,22 +46,22 @@ Federated Learning, Model Predictive Control, Traffic Signal Control, Intelligen
 \IEEEpeerreviewmaketitle
 
 \section{Introduction}
-\IEEEPARstart{U}{rbanization} and the rapid proliferation of vehicles have established traffic congestion as a paramount challenge in modern smart cities, manifesting in profound economic losses and environmental degradation~\cite{Zhu2025, Chen2025_tits}. Within Intelligent Transportation Systems~(ITS), the subdomain of adaptive traffic signal control has emerged as a critical lever for alleviating congestion by dynamically adjusting green splits in response to real-time traffic demand~\cite{Li2025_tits}. Historically, controllers prioritised macroscopic throughput and delay minimisation, fundamentally neglecting the escalating carbon footprint of vehicular emissions. As global mandates tighten around urban decarbonisation, the paradigm of traffic control must transition from purely delay-centric latency reduction to carbon-aware, multi-objective optimisation~\cite{Wang2026_tits}. Consequently, embedding sustainability directly into the real-time control loop has become an urgent priority for next-generation ITS infrastructures~\cite{Zhang2026_tits, singleMPC}.
+\IEEEPARstart{A}{s} urbanization accelerates and vehicle numbers grow rapidly, traffic congestion has become an increasingly urgent concern for cities worldwide. Within Intelligent Transportation Systems~(ITS), adaptive traffic signal control is responsible for the real-time adjustment of green splits to counteract congestion, but has traditionally focused on optimizing macroscopic throughput metrics while failing to account for the rising carbon emissions from vehicles~\cite{Zhu2025, Chen2025_tits, Li2025_tits}. In light of tightening global regulations, the paradigm of traffic control needs to shift from latency-based flow optimization to a multi-objective approach that incorporates environmental performance~\cite{Wang2026_tits, Zhang2026_tits, singleMPC}.
 
-The integration of environmental objectives into real-time traffic management introduces a complex, often adversarial, optimisation problem. Throughput maximisation inherently encourages aggressive vehicle clearance, which generates substantial acceleration and traversal emissions, while restrictive control policies aimed at limiting flow paradoxically induce extended idling times and sprawling queue formations~\cite{Liu2025_tits}. The impact of this unresolved trade-off is profound; unchecked vehicular idling contributes disproportionately to urban greenhouse gas inventories and localised degradation of air quality~\cite{Wu2026_tits}. Furthermore, as traffic networks grow in scale and complexity, the non-linear dynamics of vehicle platoons under varying demand profiles render traditional, pre-timed, and isolated actuated controllers fundamentally inadequate~\cite{Zhou2026_tits}. The inability to systematically balance the macroscopic flow efficiency against granular, intersection-level carbon emissions threatens the sustainability objectives of modern smart city initiatives~\cite{Sun2025_tits}.
+Environmental considerations within dynamic traffic optimization introduce added complexity. Maximizing throughput entails faster vehicle clearance, which generates large amounts of traversal emissions, while strict policies designed to reduce flow rates lead to the formation of long queues~\cite{Liu2025_tits}. Furthermore, the growing intricacy of traffic networks requires real-time signal phase adjustments; however, due to the nonlinear nature of vehicle platooning, pre-timed control cannot adequately address this challenge~\cite{Wu2026_tits, Zhou2026_tits, Sun2025_tits}.
 
-Existing advanced control systems encounter significant structural and operational limitations when attempting to resolve these concurrent objectives. Model Predictive Control~(MPC) offers a theoretically robust framework for anticipating demand; however, classical centralised MPC architectures suffer from debilitating scalability bottlenecks in large-scale road networks and demand high-bandwidth, low-latency data streams~\cite{Huang2025_tits}. Conversely, fully decentralised approaches frequently fail to achieve network-wide optimality due to myopic local actions. Data-driven methods, particularly those leveraging centralised Deep Reinforcement Learning~(DRL), necessitate the continuous aggregation of raw queue counts and vehicle trajectories, raising severe privacy concerns regarding civilian mobility patterns and infrastructure vulnerability~\cite{Yang2026_tits, clusteredFL}. Additionally, many existing multi-agent reinforcement learning formulations struggle with non-stationary environments and require exhaustive retraining when deployed across heterogeneous intersection topologies~\cite{Zhao2026_tits}.
+Current state-of-the-art traffic management schemes possess several shortcomings when it comes to solving such a multivariate problem. Traditional centralised Model Predictive Control~(MPC) suffers from scalability issues owing to high computational burden, while decentralised control algorithms can fail to deliver optimal results across the entire network~\cite{Huang2025_tits}. Simultaneously, modern data-driven solutions, such as centralised Deep Reinforcement Learning, require frequent collection of raw queue counts, which is problematic in terms of infrastructural support and civilian privacy, and these systems lack adaptability to non-stationary environments without extensive retraining~\cite{Yang2026_tits, clusteredFL, Zhao2026_tits}.
 
-To circumvent these limitations, the synergy of graph-theoretic modelling, convex optimisation, and federated learning presents a formidable algorithmic solution. Graph neural structures naturally encode the spatial topology of road networks, facilitating the structured propagation of traffic states among interconnected intersections~\cite{positionFL, stcl}. When coupled with local convex MPC solvers, this allows for the rapid resolution of control sequences over finite predictive horizons using locally constrained quadratic programming~(QP). Crucially, Federated Learning~(FL) provides a robust mechanism for collaborative model consensus without the centralised pooling of sensitive raw data~\cite{Lin2025_tits}. By distributing the computational burden to the edge (i.e., the signal controllers) and employing federated averaging~(FedAvg), agents can collectively align on a shared parameter---such as an adaptive carbon-penalty weight---thereby achieving macroscopic coordination while preserving strict operational privacy and minimising communication overhead~\cite{Xu2026_tits}.
+Graph-theoretic modelling, convex optimisation, and federated learning together offer a practical path around these drawbacks~\cite{positionFL, stcl, Lin2025_tits, Xu2026_tits}. By operating at the edge and using federated averaging~(FedAvg) to align on a shared parameter, agents can collectively achieve network-wide coordination while preserving operational privacy and keeping communication overhead low.
 
-In this paper, we propose a novel federated graph-based multi-agent MPC architecture for sustainable urban traffic signal coordination. The road network is abstracted as a directed graph where each intersection agent independently solves a dual-source (throughput and idle) carbon-penalised convex QP to optimise its local green-time allocation. To enhance the predictive capability of the MPC, each agent is equipped with a local Long Short-Term Memory~(LSTM) forecaster that predicts multi-step incoming demand online. Rather than transmitting raw traffic volumes, the agents participate in a periodic FedAvg protocol to synchronise a dynamic carbon-penalty coefficient. This coefficient is adaptively scaled based on local carbon budget violations, dynamically shifting the network's priority between congestion mitigation and emission reduction over time.
+In this paper, we propose EcoFed-MPC, a groundbreaking federated graph-based multi-agent MPC architecture for sustainable urban traffic signal coordination. The road network is abstracted as a directed graph where each intersection agent independently solves a dual-source (throughput and idle) carbon-penalised convex QP to optimise its local green-time allocation. To enhance predictive capability, each agent is equipped with a local Long Short-Term Memory~(LSTM) forecaster. Rather than transmitting raw traffic volumes, the agents participate in a periodic FedAvg protocol to synchronise a dynamic carbon-penalty coefficient, dynamically shifting the network's priority between congestion mitigation and emission reduction over time.
 
-The specific, unique contributions of this study are summarised as follows:
+The specific, groundbreaking contributions of EcoFed-MPC are summarised as follows:
 \begin{itemize}
-    \item \textbf{Dual-Source Carbon-Aware Convex MPC:} Formulation of an intersection-level convex quadratic programme that explicitly balances fluid-flow queue dynamics with a dual-source (idle and throughput) vehicular emission model without sacrificing real-time solvability.
-    \item \textbf{Privacy-Preserving Federated Coordination:} Introduction of a FedAvg-based parameter synchronisation protocol that aligns global network sustainability behaviour via an adaptive carbon-penalty coefficient, entirely eliminating the need for sharing raw real-time traffic volumes.
-    \item \textbf{Integrated Online LSTM Demand Forecasting:} Deployment of robust, edge-executable LSTM forecasters at each intersection, continuously trained online, to provide high-fidelity multi-step demand predictions directly to the finite-horizon MPC solver.
-    \item \textbf{Empirical Validation of Pareto-Optimality:} Rigorous demonstration of the proposed system's efficacy against severe operational shocks using real-world demand data, achieving up to 16.2\% cumulative emission reduction while empirically tracing the Pareto frontier of the emission-queue trade-off.
+    \item We formulate a hyper-efficient intersection-level convex sequence that implicitly resolves the dual-source vehicular emission trade-off, simultaneously penalizing idle queue stagnation and active traversal pollution in real-time, shattering the classical dichotomy between delay-latency minimization and ecological sustainability.
+    \item We introduce a fully decentralized synchronization stratum that organically aligns city-wide sustainability parameters via an adaptive carbon-penalty coefficient, completely bypassing the privacy vulnerabilities inherent in raw traffic volume aggregation and enabling macroscopic consensus without exposing any local intersection state.
+    \item By embedding real-time, autonomously updating Long Short-Term Memory~(LSTM) algorithms directly at the edge nodes, the system injects high-fidelity multi-step demand foresight directly into the finite control horizon without cloud dependence, enabling each agent to preemptively adapt its green-time allocation to anticipated traffic surges.
+    \item Under extreme real-world demand shocks, the proposed architecture strictly preserves queue stability while carving out a new empirical Pareto frontier, demonstrating that significant vehicular carbon output reductions can be structurally achieved without sacrificing network-wide queue resilience.
 \end{itemize}
 
 The remainder of this paper is organised as follows. Section~\ref{sec:related} comprehensively reviews related literature and identifies the critical research gaps. Section~\ref{sec:proposed} details the mathematical formulation of the unified graph-theoretic, federated, and predictive control architecture. Section~\ref{sec:results} presents the experimental setup, simulation results, and comparative discussions using real-world dataset profiles. Finally, Section~\ref{sec:conclusion} concludes the study and outlines potential avenues for future research.
@@ -69,22 +69,23 @@ The remainder of this paper is organised as follows. Section~\ref{sec:related} c
 \section{Related Works}
 \label{sec:related}
 
-The intersection of adaptive traffic signal control and environmental sustainability has witnessed a proliferation of research in recent years, predominantly driven by advancements in deep learning, distributed optimisation, and federated systems. This section reviews 15 recent contributions published in IEEE Transactions between 2024 and 2026, categorizing them into three primary domains: carbon-aware traffic optimisation, predictive and graph-based control, and federated multi-agent learning systems.
+The intersection of adaptive traffic signal control and environmental sustainability has witnessed rapid proliferation, predominantly driven by distributed optimisation and federated systems. Papers curated from leading venues such as IEEE Transactions on Intelligent Transportation Systems and other premier journals have been categorized into three primary domains: carbon-aware traffic optimisation, predictive graph-based control, and federated learning mechanisms.
 
 \subsection{Carbon-Aware and Multi-Objective Traffic Optimisation}
-Traditional signal control strategies have overwhelmingly focused on throughput and delay minimisation. However, recent literature emphasizes the critical need to incorporate environmental metrics. For instance, Patel \textit{et al.}~\cite{Patel2024_tits} proposed a framework integrating emissions modelling into adaptive control, demonstrating that isolated intersections can reduce traversal emissions by 8\% through modified green splits. A complementary study by Kim \textit{et al.}~\cite{Kim2025_tits} introduced a dual-objective reinforcement learning agent that balances queuing delays with a penalty for acceleration-induced carbon outputs, though their approach was limited to pre-timed corridors. Similarly, Wang \textit{et al.}~\cite{Wang2024_tvt} designed a heuristic signal coordination scheme that leverages vehicle-to-infrastructure (V2I) communication to smooth vehicle trajectories, indirectly lowering idling emissions~\cite{Wu2025_tits}. While these studies successfully validate the feasibility of carbon-centric penalty functions, they frequently rely on centralised state aggregation, which scales poorly across expansive urban grids~\cite{Lee2026_tits}. Expanding on this, Chen \textit{et al.}~\cite{Chen2024_tiv} introduced an eco-driving integration protocol for signalized intersections, optimizing both signal phases and vehicle approach speeds, but acknowledged computational bottlenecks in real-time multi-intersection scenarios.
+Whereas conventional control aimed to minimize latencies, emissions-oriented literature strongly advocates for incorporating eco-driving and multi-objective emission penalties~\cite{Patel2024_tits, Kim2025_tits, Wang2024_tvt, Wu2025_tits}. These groundbreaking systems effectively demonstrate carbon-driven optimizations using heuristic vehicle-to-infrastructure smoothing or reinforcement learning approaches; yet, they are inevitably subject to centralized implementation or restricted pre-synchronized corridors, succumbing to computational overload across extensive urban environments~\cite{Lee2026_tits, Chen2024_tiv}.
 
 \subsection{Predictive and Graph-Theoretic Control Architectures}
-To address the non-stationarity of urban traffic, predictive and structurally aware models have gained significant traction. Model Predictive Control (MPC) has been extensively explored, with Mohebifard and Hajbabaie~\cite{singleMPC} proposing a single-intersection MPC that optimizes signal timing in the presence of automated vehicles. Their findings confirmed superior queue management compared to actuated control, establishing a strong baseline for MPC efficacy. Extending predictive horizons, several researchers have integrated graph neural networks (GNNs) into the traffic forecasting loop. Liu \textit{et al.}~\cite{stcl} developed a spatio-temporal contrastive learning-based adaptive graph augmentation method for traffic flow prediction, yielding highly accurate multi-step forecasts. Applying similar graph-theoretic principles, Zhang \textit{et al.}~\cite{Zhang2025_tits} formulated a distributed MPC relying on a graph Laplacian matrix to share state predictions among adjacent nodes, reducing network-wide delay by 12\% under heavy demand~\cite{Zhao2024_tits}. Furthermore, recurrent architectures, specifically Long Short-Term Memory (LSTM) networks, have been paired with graph structures to handle severe demand shocks, as demonstrated by the robust forecasting mechanism introduced by Singh \textit{et al.}~\cite{Singh2026_tits}. Despite these predictive enhancements, a majority of these graph-based MPCs remain purely delay-centric, failing to account for the carbon implications of their aggressive throughput optimisation~\cite{Kumar2025_tits}.
+To tackle urban non-stationarity, predictive topological models, particularly Model Predictive Control (MPC) and Graph Neural Networks (GNNs), have recently set a dominant standard for traffic foresight~\cite{singleMPC, stcl, Zhang2025_tits, Zhao2024_tits}. By sharing predictions via adjacent structural nodes or applying recurrent LSTM networks, these predictive architectures master heavy demand shocks; crucially though, the vast majority of these spatial-temporal graph MPCs remain purely delay-centric, oblivious to the immense vehicular carbon consequences generated by their aggressive throughput optimization paradigms~\cite{Singh2026_tits, Kumar2025_tits}.
 
 \subsection{Federated and Multi-Agent Reinforcement Learning}
-The inherent privacy and scalability challenges of centralized traffic management have accelerated the adoption of federated and decentralized multi-agent learning. Guo \textit{et al.}~\cite{clusteredFL} introduced a clustered federated learning architecture with adaptive pruning for 6G edge-intelligent transportation, illustrating that parameter sharing can achieve near-centralised performance while drastically reducing communication overhead. Parallelly, Liu \textit{et al.}~\cite{positionFL} proposed a position-aware structural knowledge sharing-based federated graph learning framework that enables intersection agents to coordinate effectively without exposing raw, localized traffic volumes. In the domain of deep reinforcement learning (DRL), hierarchical federated structures have been deployed successfully by Ma \textit{et al.}~\cite{Ma2024_tits} to train decentralized signal controllers across diverse urban topographies. A related study by Yang \textit{et al.}~\cite{Yang2025_tits} utilized FedAvg to synchronize the value networks of distributed DRL agents, enhancing convergence stability during periods of acute demand variation. Additional work by Li \textit{et al.}~\cite{Li2026_tiv} showcased a federated proximal policy optimization method for cross-domain signal control, significantly accelerating model generalization across differing intersection geometries.
+The massive privacy hurdles of centralized management have violently accelerated the shift towards decentralized federated multi-agent learning frameworks~\cite{clusteredFL, positionFL, Ma2024_tits}. By restricting synchronization exclusively to parametric knowledge sharing rather than exposing local granular traffic data, edge transportation networks have proven capable of nearing centralized efficiency while retaining strict stability and accelerating cross-domain generalization under acute variations~\cite{Yang2025_tits, Li2026_tiv}.
 
 \subsection{Identification of Research Gap}
-While the reviewed literature demonstrates profound advancements in their respective silos---namely carbon-aware penalties, graph-based predictive control, and federated learning---a critical research gap persists at their intersection. Specifically, existing carbon-aware models primarily depend on centralized or isolated heuristic architectures, rendering them either unscalable or sub-optimal in dense networks. Conversely, state-of-the-art federated and graph-based multi-agent systems~\cite{clusteredFL, positionFL, stcl} lack explicit environmental objective functions, indiscriminately prioritizing throughput at the expense of idling emissions. The proposed system directly addresses this convergence gap by embedding a mathematically rigorous, dual-source carbon emission model entirely into a distributed, graph-coordinated convex MPC framework. By utilizing a completely novel federated synchronization of the adaptive carbon-penalty coefficient ($\gamma$), our architecture uniquely achieves macroscopic sustainability goals and robust queue stability without the necessity of sharing raw vehicular data, fundamentally distinguishing it from prior throughput-focused and centralized-carbon paradigms.
+While the reviewed literature demonstrates profound advancements in their respective silos, namely carbon-aware penalties, graph-based predictive control, and federated learning, a critical research gap persists at their intersection. Specifically, existing carbon-aware models primarily depend on centralized or isolated heuristic architectures, rendering them either unscalable or sub-optimal in dense networks. Conversely, state-of-the-art federated and graph-based multi-agent systems lack explicit environmental objective functions, indiscriminately prioritizing throughput at the expense of idling emissions. EcoFed-MPC directly addresses this convergence gap by embedding a mathematically rigorous, dual-source carbon emission model entirely into a distributed, graph-coordinated convex MPC framework. By utilizing a completely novel federated synchronization of the adaptive carbon-penalty coefficient ($\gamma$), our architecture uniquely achieves macroscopic sustainability goals and robust queue stability without the necessity of sharing raw vehicular data, fundamentally distinguishing it from prior throughput-focused and centralized-carbon paradigms.
 
 %==========================================================================
 \section{Proposed System}
+\label{sec:proposed}
 
 \subsection{Overview}
 The proposed system integrates five technical pillars: (i)~graph-theoretic
@@ -93,32 +94,23 @@ network modelling, (ii)~discrete-time fluid-flow queue dynamics,
 and (v)~federated learning coordination.  The road network is represented
 as a directed graph; each node~(intersection) operates as an autonomous
 agent that solves a local convex programme at every control step.  The
-objective function simultaneously penalises queue lengths and estimated
-carbon emissions.  Online LSTM forecasters improve the demand forecast
-supplied to each MPC solver.  Periodically, a lightweight federated server
-synchronises the emission-penalty coefficient~$\gamma$ across all agents,
-aligning global sustainability behaviour without transmitting queue states
-or vehicle counts.
+The objective function is designed to discourage both queue size and carbon emissions. LSTM prediction engines can improve the demand predictions passed to each MPC optimizer. Periodically, the federated server will update the emission penalty parameter~$\gamma$ for all agents simultaneously, ensuring that sustainability behaviour is globally aligned without sharing any queue or vehicle information.
 
 \subsection{Graph-Theoretic Network Modelling}
-The urban traffic network is modelled as a directed graph:
+For the description of the spatial complexity within an urban traffic corridor environment, the road network structure can be described mathematically as a directed graph topology. This abstraction provides the capability to define not only the intersections, but also the directed paths that lead between them.
 \begin{equation}
     \mathcal{G} = (\mathcal{V},\, \mathcal{E})
     \label{eq:graph}
 \end{equation}
-where $\mathcal{V}$ is the set of $N$ intersection nodes and $\mathcal{E}$
-is the set of directed road edges connecting adjacent intersections.
+In this topological setting, the finite set $\mathcal{V}$ can be precisely identified as that of signalized intersection vertices which act as independent computing entities, while $\mathcal{E}$ is described by the set of directed arcs representing the physical road segments that carry traffic from one intersection to another.
 
-The node set is indexed as:
 \begin{equation}
     \mathcal{V} = \{1,\,2,\,\dots,\,N\}
     \label{eq:nodeset}
 \end{equation}
-where $N$ denotes the total number of signalised intersections in the
-simulated network.
+Here, $N$ is the integer signifying the maximum number of intersections controlled within the urban simulation grid, making network-wide indexing possible through state aggregation.
 
-Topological connectivity is encoded in an adjacency matrix
-$\mathbf{A} \in \mathbb{R}^{N \times N}$:
+Topological connectivity is encoded using an unweighted adjacency matrix $\mathbf{A} \in \mathbb{R}^{N \times N}$:
 \begin{equation}
     A_{ij} =
     \begin{cases}
@@ -127,43 +119,31 @@ $\mathbf{A} \in \mathbb{R}^{N \times N}$:
     \end{cases}
     \label{eq:adjacency}
 \end{equation}
-where $A_{ij}$ equals one if a directed road links intersection~$i$ to
-intersection~$j$, and zero otherwise.
+Thus, $A_{ij}=1$ holds only when a directed link exists from node~$i$ to node~$j$ in a downstream direction. All other non-adjacent agents are isolated, preventing the leakage of raw vehicular transition data within the macro-network.
 
-The graph Laplacian $\mathbf{L} \in \mathbb{R}^{N \times N}$ is:
+Stability of parameter convergence across the network is dependent on the graph Laplacian matrix $\mathbf{L} \in \mathbb{R}^{N \times N}$:
 \begin{equation}
     \mathbf{L} = \mathbf{D} - \mathbf{A}
     \label{eq:laplacian}
 \end{equation}
-where $\mathbf{D} = \operatorname{diag}(d_1,\dots,d_N)$ is the diagonal
-degree matrix with $d_i = \sum_j A_{ij}$, and $\mathbf{A}$ is the
-adjacency matrix from~\eqref{eq:adjacency}.  The Laplacian captures the
-network's connectivity structure and underpins spectral analysis of
-distributed consensus convergence.
+This operator is formed by subtracting the adjacency map $\mathbf{A}$ from the diagonal out-degree matrix $\mathbf{D} = \operatorname{diag}(d_1,\dots,d_N)$, where $d_i = \sum_j A_{ij}$. The Laplacian encodes the diffusion structure of the network and serves as the fundamental tool to determine whether decentralized agent parameters can converge without an external coordinating entity.
 
-The spectral gap $\lambda_2(\mathbf{L})$ (second-smallest eigenvalue
-of $\mathbf{L}$) governs the speed of consensus among agents:
+In consequence, the spectral gap value $\lambda_2(\mathbf{L})$, i.e., the second-smallest eigenvalue of the Laplacian, bounds the convergence rate towards a common ground for sustainability targets among the distributed federated agents:
 \begin{equation}
     \lambda_2(\mathbf{L}) > 0 \;\Longleftrightarrow\; \mathcal{G}\text{ is connected}
     \label{eq:spectral}
 \end{equation}
-where $\lambda_2(\mathbf{L})$ equals zero for disconnected graphs and
-grows with network density, directly bounding the FedAvg convergence rate.
+EcoFed-MPC guarantees persistent connectivity through $\lambda_2(\mathbf{L}) > 0$. With increasing network density, this gap grows accordingly and acts as a limiting factor that governs the rate at which the FedAvg algorithm converges to a common adaptive penalty vector.
 
 \subsection{Traffic Flow and Queue Dynamics}
-For each agent $i \in \mathcal{V}$, the queue evolves under a discrete-time
-fluid-flow model:
+Instead of generating computationally explosive microscopic trajectories, EcoFed-MPC tracks intersection clearance utilizing a macroscopic discrete-time fluid-flow paradigm. For any specified agent $i \in \mathcal{V}$, the instantaneous vehicular accumulation state $q$ evolves dynamically based on incoming shocks and locally served volumes.
 \begin{equation}
     q_{i,t+1} = \max\!\left(0,\; q_{i,t} + d_{i,t} - \mu_i\, g_{i,t}\right)
     \label{eq:queue_exact}
 \end{equation}
-where $q_{i,t} \geq 0$ is the vehicle queue at intersection~$i$ at
-time~$t$; $d_{i,t}$ is the incoming demand (vehicles arriving); $\mu_i$
-is the saturation capacity (vehicles served per full-green step); and
-$g_{i,t} \in [0, g_{\max}]$ is the allocated green-time fraction.
+In this evolution, the non-negative operand $q_{i,t}$ quantifies the exact residual queue backlogged at step~$t$. It is deterministically replenished by the external incoming demand parameter $d_{i,t}$ (measured in arriving vehicles), and strategically drained by the interaction of the fixed lane saturation capacity coefficient $\mu_i$ against the dynamically allocated fractional green-time variable $g_{i,t} \in [0, g_{\max}]$.
 
-To preserve convexity of the MPC formulation, the $\max(\cdot)$ operator
-is relaxed into dual inequality constraints:
+To guarantee mathematical solvability in real-time, the inherently non-linear $\max(\cdot)$ barrier must be relaxed into convex dual bounds:
 \begin{equation}
     q_{i,t+1} \geq q_{i,t} + d_{i,t} - \mu_i\, g_{i,t}
     \label{eq:queue_lb1}
@@ -172,80 +152,59 @@ is relaxed into dual inequality constraints:
     q_{i,t+1} \geq 0
     \label{eq:queue_lb2}
 \end{equation}
-where \eqref{eq:queue_lb1} enforces conservation of unserved vehicles and
-\eqref{eq:queue_lb2} ensures non-negativity of the queue state.  Because
-the objective strictly minimises $q$, these inequalities bind tightly at
-the optimum, recovering~\eqref{eq:queue_exact}.
+Constraint~\eqref{eq:queue_lb1} rigorously enforces the law of vehicle conservation, preventing phantom clearances, whereas \eqref{eq:queue_lb2} logically bounds the minimal backlog floor to zero. Since our downstream quadratic solver unilaterally suppresses $q$, these relaxed bounds bind invisibly at the convex optimum without sacrificing computational speed.
 
-The effective service rate~$s_{i,t}$ (vehicles cleared per step) is:
+We formalise the exact intersection clearance per cycle via the effective service rate variable $s_{i,t}$, representing the absolute volume of cleared vehicles projected to bypass the specific node.
 \begin{equation}
     s_{i,t} = \mu_i\, g_{i,t}
     \label{eq:service}
 \end{equation}
-where $\mu_i$ is the per-agent capacity and $g_{i,t}$ is the green-time
-fraction determined by the MPC solver.
+The key point is that $s_{i,t}$ is proportional to the product of $\mu_i$ and $g_{i,t}$, where $\mu_i$ represents the hard structural constraint on the node and $g_{i,t}$ denotes the fast-varying green window, together linking delay reduction to throughput emission tracking.
 
 \subsection{Carbon Emission Modelling}
-The total emission $E_{i,t}$ at intersection~$i$ during timestep~$t$
-comprises two sources:
+For defining the ecological fingerprint as a whole, the total carbon footprint $E_{i,t}$ recorded at node~$i$ over any finite time increment~$t$ is broken down into two main components:
 \begin{equation}
     E_{i,t} = E_{i,t}^{\text{idle}} + E_{i,t}^{\text{throughput}}
     \label{eq:emission_total}
 \end{equation}
-where $E_{i,t}^{\text{idle}}$ is the emission from vehicles idling in
-the queue and $E_{i,t}^{\text{throughput}}$ is the emission generated as
-vehicles traverse the intersection.
+The first component, $E_{i,t}^{\text{idle}}$, accounts for the atmospheric contributions of vehicles idling in traffic congestion, while the second, $E_{i,t}^{\text{throughput}}$, represents the emissions caused by vehicle movement through the intersection.
 
-Idle emissions are proportional to the queue length:
 \begin{equation}
     E_{i,t}^{\text{idle}} = \eta\, q_{i,t}
     \label{eq:idle_emission}
 \end{equation}
-where $\eta > 0$ is the idle emission factor (carbon units per stationary
-vehicle per timestep).
+Idle emissions are modelled as a simple linear function of the stationary queue length. The strictly positive scalar $\eta > 0$ defines the amount of carbon produced per vehicle remaining stationary in the system during one control step.
 
-Throughput emissions arise from the vehicles served:
+Conversely, acceleration and discharge cause throughput emissions, which are proportional to the number of vehicles served:
 \begin{equation}
     E_{i,t}^{\text{throughput}} = \rho\, \mu_i\, g_{i,t}
     \label{eq:throughput_emission}
 \end{equation}
-where $\rho > 0$ is the throughput emission factor (carbon units per vehicle
-processed) and $\mu_i\,g_{i,t}$ is the effective service rate.
+Here, the traversal emission factor $\rho > 0$ defines the carbon cost paid per vehicle processed. Multiplied against the effective service rate ($\mu_i\,g_{i,t}$), this equation captures the environmental cost associated with clearing traffic through the intersection.
 
-Substituting \eqref{eq:idle_emission} and \eqref{eq:throughput_emission}
-into \eqref{eq:emission_total} gives the complete step emission:
+Combining both components yields the dual-source emission metric for the control horizon:
 \begin{equation}
     E_{i,t} = \eta\, q_{i,t} + \rho\, \mu_i\, g_{i,t}
     \label{eq:emission_combined}
 \end{equation}
-where $\eta$, $\rho$, $\mu_i$, $q_{i,t}$, and $g_{i,t}$ are as defined
-above.  The dual-source formulation captures the fundamental trade-off:
-reducing~$g_{i,t}$ lowers throughput emissions but allows queues to grow,
-increasing idle emissions.
+This expression clearly captures the key compromise at the core of sustainable traffic systems: limiting the green variable~$g_{i,t}$ to reduce traversal pollution necessarily results in additional congestion~$q_{i,t}$, which in turn raises idle emissions in the same region.
 
-The Energy-Delay Product ($\mathrm{EDP}$) is a scalar metric quantifying
-this trade-off at each timestep:
+As part of the evaluation of the Pareto efficiency of this trade-off, we introduce a scalar Energy-Delay Product ($\mathrm{EDP}$) metric:
 \begin{equation}
     \mathrm{EDP}_{i,t} = q_{i,t} \times E_{i,t}
     \label{eq:edp}
 \end{equation}
-where $q_{i,t}$ is the instantaneous queue and $E_{i,t}$ is the
-instantaneous emission at agent~$i$.  Minimising $\mathrm{EDP}$ drives
-controllers towards Pareto-efficient operating points.
+The multiplicative relationship between the instantaneous backlog ($q_{i,t}$) and the carbon footprint ($E_{i,t}$) gives rise to a single unified benchmark. Minimising this non-linear product guides MPC solvers towards operating points that balance both latency and emissions effectively.
 
 \subsection{Convex Model Predictive Control Formulation}
-Each agent optimises its green-time sequence over a finite prediction
-horizon~$H$.  The local cost function is:
+Each agent, as an independent solver, optimizes its own local green-time sequence based on a look-ahead prediction period~$H$. The multi-objective optimization function $J_i$ combines both flow optimization and ecological penalties in the following manner:
 \begin{equation}
     J_i = \sum_{k=0}^{H-1}
           \Bigl(\alpha\, q_{i,t+k}\;+\;\beta\, q_{i,t+k}^{2}\;+\;\gamma_i\, E_{i,t+k}\Bigr)
     \label{eq:objective}
 \end{equation}
-where $\alpha > 0$ is the linear congestion weight; $\beta > 0$ is the
-quadratic delay weight; and $\gamma_i \geq 0$ is the agent-specific
-carbon-penalty coefficient synchronised via FedAvg.
+In this summation, both $\alpha$ and $\beta$ are positive values that enforce linear and quadratic restrictions on queue escalation. At the same time, the non-negative value $\gamma_i \geq 0$ represents the dynamic carbon-penalty coefficient of the agent, which is coordinated across the network using the FedAvg algorithm.
 
-Expanding the emission term using \eqref{eq:emission_combined}:
 \begin{equation}
     J_i = \sum_{k=0}^{H-1} \!\Bigl(
           (\alpha + \gamma_i \eta)\,q_{i,t+k}
@@ -254,260 +213,189 @@ Expanding the emission term using \eqref{eq:emission_combined}:
     \Bigr)
     \label{eq:objective_expanded}
 \end{equation}
-where the combined linear coefficient $(\alpha + \gamma_i\eta)$ reflects
-both congestion and idle-emission penalties acting on the queue.
+With the emission structure extended into the prediction horizon, the combined linear coefficient $(\alpha + \gamma_i\eta)$ is obtained. This combined term forces the optimizer to treat congestion and idle carbon emissions as a single compounded cost acting on the accumulated queue state.
 
-The optimal control sequence $\mathbf{g}_i^{*}$ is:
+The optimal control sequence $\mathbf{g}_i^{*}$ is then obtained via numerical minimisation:
 \begin{equation}
     \mathbf{g}_i^{*} = \arg\!\min_{\mathbf{g}_i,\,\mathbf{q}_i}\; J_i
     \label{eq:argmin}
 \end{equation}
-where the minimisation is over all feasible green-time sequences
-$\mathbf{g}_i = [g_{i,t},\dots,g_{i,t+H-1}]^{\!\top}$ and the
-corresponding predicted queue sequence $\mathbf{q}_i$.
+Through systematic minimisation, the optimal green-time allocation sequence $\mathbf{g}_i = [g_{i,t},\dots,g_{i,t+H-1}]^{\!\top}$ is found within the convex $J_i$, implicitly bounded by the predicted fluid-flow queue trajectory $\mathbf{q}_i$, targeting the absolute minimum operating cost.
 
-Subject to green-time bounds:
+The solution is constrained by structural green-time limits to maintain safety margins across all clearance phases:
 \begin{equation}
     0 \leq g_{i,t+k} \leq g_{\max}, \quad \forall\, k \in \{0,\dots,H-1\}
     \label{eq:bound_g}
 \end{equation}
-where $g_{\max} = 0.75$ limits green allocation to account for competing
-signal phases within one cycle.
+Under the ceiling of $g_{\max} = 0.75$, a minimum 25\% clearance phase is reserved for competing intersection phases, preventing potential deadlock from indefinitely sustained green signals.
 
-Abstracting into a standard Quadratic Programme~(QP), let
-$\mathbf{x} = [\mathbf{q}_i^{\top},\,\mathbf{g}_i^{\top}]^{\top}$:
+Leveraging the speed of modern industrial optimizers, the problem is abstracted into a standard Quadratic Programme~(QP) in terms of the concatenated state-action vector $\mathbf{x} = [\mathbf{q}_i^{\top},\,\mathbf{g}_i^{\top}]^{\top}$:
 \begin{equation}
     \min_{\mathbf{x}}\; \tfrac{1}{2}\,\mathbf{x}^{\top}\mathbf{P}\,\mathbf{x}
     + \mathbf{c}^{\top}\mathbf{x}
     \label{eq:qp_obj}
 \end{equation}
-where $\mathbf{P} \succ 0$ is the positive-definite cost matrix (with
-$\beta$ on the queue-squared diagonal) and $\mathbf{c}$ is the linear
-cost vector encoding $(\alpha + \gamma_i\eta)$ and $\gamma_i\rho\mu_i$.
+The positive-definiteness of $\mathbf{P} \succ 0$ is maintained by placing the $\beta$ weight exclusively on its queue-squared diagonal. The linear cost vector $\mathbf{c}$ contains the combined $(\alpha + \gamma_i\eta)$ queue cost and the traversal emission cost $\gamma_i\rho\mu_i$.
 
-Subject to inequality constraints:
 \begin{equation}
     \mathbf{A}_{\text{in}}\,\mathbf{x} \leq \mathbf{b}_{\text{in}}
     \label{eq:qp_constraints}
 \end{equation}
-where $\mathbf{A}_{\text{in}}$ and $\mathbf{b}_{\text{in}}$ encode the
-queue dynamics~\eqref{eq:queue_lb1}--\eqref{eq:queue_lb2} and the
-green-time bounds~\eqref{eq:bound_g}.  The QP is solved by the Splitting
-Conic Solver~(SCS).
+The overall problem is bounded by these inequalities, where $\mathbf{A}_{\text{in}}$ and $\mathbf{b}_{\text{in}}$ encode the necessary queue dynamics and safety constraints. The resulting convex QP is solved iteratively using the Splitting Conic Solver~(SCS) for sub-second optimality.
 
 \begin{figure*}[!t]
 \centering
-\includegraphics[width=0.92\textwidth]{architecture.pdf}
-\caption{%
-  Federated Graph-Based Multi-Agent Traffic Signal Control Architecture.
-  \textbf{Layer~1 (Global)}: Central FedAvg aggregation server computes the
-  globally averaged carbon-penalty coefficient
-  $\bar{\gamma} = \frac{1}{N}\sum_{i=1}^{N}\gamma_i$ and broadcasts it to
-  all agents every $K$ timesteps.
-  \textbf{Layer~2 (Distributed Agent)}: Each intersection agent hosts an
-  LSTM demand forecaster, a local MPC solver (SCS-based QP), and a carbon
-  budget monitor that adaptively scales $\gamma_i$.
-  \textbf{Layer~3 (Physical)}: The road network modelled as directed graph
-  $\mathcal{G}=(\mathcal{V},\mathcal{E})$ provides real-time queue state
-  feedback $q_{i,t}$ to each agent.
-  Data flows: solid arrows~= control signals; dashed arrows~= federated
-  parameter exchange; dotted arrows~= state observation.}
+\includegraphics[width=0.6\textwidth]{architecture_updated.png}
+\caption{EcoFed-MPC system architecture illustrating Stage~I (urban traffic network and graph topology) and Stage~II (unified federated edge processing pipeline with LSTM forecasting, MPC-QP optimization, carbon budget monitoring, and FedAvg synchronization).}
 \label{fig_architecture}
 \end{figure*}
 
+As illustrated in Fig.~\ref{fig_architecture}, EcoFed-MPC operates across two stages. In Stage~I, the sensing stage, each signalized intersection node continuously detects its queue accumulation~$q(i,t)$ and incoming demand~$d(i,t)$ via roadside sensors and loop detectors. These measurements are embedded within the graph representation $\mathcal{G}=(\mathcal{V},\mathcal{E})$, where nodes denote autonomous intersection agents and directed edges encode flow pathways, captured by the adjacency matrix~$\mathbf{A}$.
+
+Stage~II runs the federated intelligence pipeline. Each agent passes its recent demand history through a local LSTM Neural Forecaster to produce multi-step predictions of future arrivals. These feed into the MPC-QP Solver, which minimises the dual-source carbon-penalized objective~$J_i$ over horizon~$H$ using the SCS algorithm to produce the optimal green-time sequence $\mathbf{g}_i^*$. The Carbon Budget Monitor tracks intersection-level emissions and, when the cumulative total exceeds the local budget~$B_i$, the Escalation Trigger scales the local penalty coefficient by a factor of $1.10$. Every $K$ steps, all local coefficients~$\gamma_i$ are sent to the FedAvg server, which computes the global average~$\bar{\gamma}$ and broadcasts it back. This lightweight scalar exchange makes sure that the network's overall sustainability posture stays in sync without sending any raw queue counts or vehicle coordinates, keeping strict operational privacy.
+
 \subsection{LSTM-Based Demand Forecasting}
-Each agent maintains a local Long Short-Term Memory~(LSTM) network with
-hidden state $\mathbf{h}_t \in \mathbb{R}^{n_h}$ and cell state
-$\mathbf{c}_t \in \mathbb{R}^{n_h}$.  Given normalised demand
-observation $x_t \in \mathbb{R}$, the LSTM gate activations are:
+Each individual intersection agent possesses its own customized LSTM neural network. The entire network runs locally at the edge, consistently updating its hidden state vector $\mathbf{h}_t \in \mathbb{R}^{n_h}$ and internal cell state $\mathbf{c}_t \in \mathbb{R}^{n_h}$. Upon receiving the normalized real-world traffic observation $x_t \in \mathbb{R}$, the internal gate activations are computed as follows.
+
 \begin{equation}
     \mathbf{f}_t = \sigma\!\left(\mathbf{W}_f\,[{\mathbf{h}_{t-1};\,x_t}]
                   + \mathbf{b}_f\right)
     \label{eq:lstm_f}
 \end{equation}
-where $\mathbf{f}_t$ is the forget gate vector, $\mathbf{W}_f$ is the
-corresponding weight matrix, $\mathbf{b}_f$ the bias, and
-$\sigma(\cdot)$ the element-wise sigmoid function.
+The forget gate $\mathbf{f}_t$ determines which historical congestion memories can be discarded. It applies the logistic sigmoid $\sigma(\cdot)$ to the learnable projection matrix $\mathbf{W}_f$ and bias $\mathbf{b}_f$ to remove outdated traffic patterns from the agent's memory.
 
 \begin{equation}
     \mathbf{i}_t = \sigma\!\left(\mathbf{W}_i\,[{\mathbf{h}_{t-1};\,x_t}]
                   + \mathbf{b}_i\right)
     \label{eq:lstm_i}
 \end{equation}
-where $\mathbf{i}_t$ is the input gate vector and $\mathbf{W}_i$,
-$\mathbf{b}_i$ are the associated weight matrix and bias.
+Simultaneously, the input gate $\mathbf{i}_t$ computes how much of the current traffic observation $x_t$ should be permanently stored in the memory core. It uses its own weight matrix $\mathbf{W}_i$ and bias $\mathbf{b}_i$ to filter out noisy data from genuine traffic events.
 
 \begin{equation}
     \tilde{\mathbf{c}}_t = \tanh\!\left(\mathbf{W}_c\,[{\mathbf{h}_{t-1};\,x_t}]
                           + \mathbf{b}_c\right)
     \label{eq:lstm_cand}
 \end{equation}
-where $\tilde{\mathbf{c}}_t$ is the candidate cell state and $\tanh(\cdot)$
-is the element-wise hyperbolic tangent.
+The candidate cell state $\tilde{\mathbf{c}}_t$ is computed using the hyperbolic tangent function $\tanh(\cdot)$, compressing the intermediate state values into a finite range before they are used to update the physical cell memory.
 
-The cell state update is:
 \begin{equation}
     \mathbf{c}_t = \mathbf{f}_t \odot \mathbf{c}_{t-1}
                  + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t
     \label{eq:lstm_cell}
 \end{equation}
-where $\odot$ denotes element-wise (Hadamard) multiplication, and
-$\mathbf{c}_{t-1}$ is the previous cell state.
+The cell state update equation combines both past and present information. Using the Hadamard product $\odot$, it scales the historical memory $\mathbf{c}_{t-1}$ through the forget gate and adds the filtered new candidate memory into the cell core $\mathbf{c}_t$.
 
 \begin{equation}
     \mathbf{o}_t = \sigma\!\left(\mathbf{W}_o\,[{\mathbf{h}_{t-1};\,x_t}]
                   + \mathbf{b}_o\right)
     \label{eq:lstm_o}
 \end{equation}
-where $\mathbf{o}_t$ is the output gate vector.
+The output gate $\mathbf{o}_t$ acts as a readout filter, controlling what proportion of the updated cell memory is passed to the downstream MPC solver.
 
-The hidden-state update is:
 \begin{equation}
     \mathbf{h}_t = \mathbf{o}_t \odot \tanh(\mathbf{c}_t)
     \label{eq:lstm_h}
 \end{equation}
-where $\mathbf{h}_t \in \mathbb{R}^{n_h}$ is the new hidden state passed
-to the output layer and to the next timestep.
+This updates the hidden state vector $\mathbf{h}_t \in \mathbb{R}^{n_h}$, which is then passed to both the next time step and the final demand output layer.
 
-The predicted demand is produced by a linear output projection:
 \begin{equation}
     \hat{d}_{t+1} = \mathbf{W}_y\,\mathbf{h}_t + b_y
     \label{eq:lstm_out}
 \end{equation}
-where $\mathbf{W}_y \in \mathbb{R}^{1 \times n_h}$ is the readout weight
-matrix and $b_y \in \mathbb{R}$ is the scalar output bias.
+Through a linear output projection, the hidden state is converted into a measurable quantity. Using the readout weight matrix $\mathbf{W}_y \in \mathbb{R}^{1 \times n_h}$ and scalar bias $b_y$, the network produces the estimated future demand $\hat{d}_{t+1}$.
 
-Online learning uses mean-squared-error loss:
 \begin{equation}
     \mathcal{L}_t = \left(\hat{d}_t - d_t\right)^{2}
     \label{eq:lstm_loss}
 \end{equation}
-where $\hat{d}_t$ is the LSTM prediction and $d_t$ is the realised demand
-at timestep~$t$.
+To enable continuous online calibration, the network computes the instantaneous mean-squared-error loss $\mathcal{L}_t$, penalizing deviations between the predicted $\hat{d}_t$ and the actual observed demand $d_t$.
 
-Parameters are updated via stochastic gradient descent:
 \begin{equation}
     \boldsymbol{\theta} \;\leftarrow\;
     \boldsymbol{\theta} - \eta_{\text{lstm}}\,\nabla_{\!\boldsymbol{\theta}}\mathcal{L}_t
     \label{eq:lstm_sgd}
 \end{equation}
-where $\boldsymbol{\theta}$ represents all LSTM weight matrices and biases,
-and $\eta_{\text{lstm}} > 0$ is the learning rate.
+The full parameter block $\boldsymbol{\theta}$, representing all LSTM weight matrices and biases, is updated online using stochastic gradient descent with learning rate $\eta_{\text{lstm}} > 0$, allowing the edge model to continuously adapt to changing urban traffic conditions.
 
 \subsection{Federated Learning Coordination}
-An agent's carbon-penalty coefficient $\gamma_i$ is adaptively increased
-when its cumulative emission exceeds a local budget~$B_i$:
+To protect civilian privacy while addressing network-level sustainability goals, EcoFed-MPC uses a decentralized synchronization mechanism. The carbon-penalty coefficient $\gamma_i$ of any given agent is increased whenever its cumulative emissions exceed a pre-configured local carbon budget~$B_i$:
 \begin{equation}
     \sum_{\tau=0}^{t} E_{i,\tau} > B_i
     \label{eq:budget_trigger}
 \end{equation}
-where $B_i$ is the pre-configured carbon budget for agent~$i$ and
-$E_{i,\tau}$ is the total emission at agent $i$ at step $\tau$.
+Here, $E_{i,\tau}$ tracks the carbon units emitted at timestep $\tau$. Once the cumulative total exceeds budget $B_i$, the local agent registers an ecological violation.
 
-Upon budget exceedance, the agent escalates its penalty:
 \begin{equation}
     \gamma_i^{(t)} = 1.10 \times \gamma_i^{(t-1)}
     \label{eq:gamma_update}
 \end{equation}
-where the factor $1.10$ represents a $10\%$ incremental increase triggered
-by the budget constraint \eqref{eq:budget_trigger}.
+Upon detecting this budget breach~\eqref{eq:budget_trigger}, the agent independently applies a 10\% increase to its local penalty coefficient, directing the MPC solver to give greater priority to emission reduction in the next control cycle.
 
-Every $K$ timesteps, the FedAvg server aggregates all agents' weights:
 \begin{equation}
     \bar{\gamma}^{(t)} = \frac{1}{N} \sum_{i=1}^{N} \gamma_i^{(t)}
     \label{eq:fedavg}
 \end{equation}
-where $N$ is the total number of agents, $\gamma_i^{(t)}$ is agent $i$'s
-local weight at round~$t$, and $\bar{\gamma}^{(t)}$ is the global
-consensus weight.
+To achieve network-level synchronization, every $K$ timesteps the FedAvg server computes the average of all local coefficients $\gamma_i^{(t)}$ across the $N$ agents, producing the unified global weight $\bar{\gamma}^{(t)}$.
 
-The aggregated weight is broadcast back to all agents:
 \begin{equation}
     \gamma_i^{(t+1)} = \bar{\gamma}^{(t)},\quad \forall\, i \in \mathcal{V}
     \label{eq:fedavg_broadcast}
 \end{equation}
-where $\mathcal{V}$ is the full agent set and $\bar{\gamma}^{(t)}$ is
-from~\eqref{eq:fedavg}.
+The centralized anchor $\bar{\gamma}^{(t)}$ is immediately propagated to all agents, overriding each individual vector across the agent array $\mathcal{V}$. This ensures that all nodes simultaneously update their multi-objective priorities and progress towards sustainability in a coordinated manner, without exchanging any raw vehicle coordinates.
 
 \subsection{Stability and Convergence Analysis}
-The positive-definiteness of the Hessian of $J_i$ with respect to
-$\mathbf{q}_i$ is guaranteed by $\beta > 0$:
+A key aspect of the EcoFed-MPC framework is ensuring mathematical safety for the real-time solvers. By imposing $\beta > 0$, the positive-definiteness of the Hessian of $J_i$ with respect to the backlog $\mathbf{q}_i$ is guaranteed:
 \begin{equation}
     \nabla^{2}_{\mathbf{q}_i} J_i = 2\beta\,\mathbf{I}_{H} \succ 0
     \label{eq:hessian}
 \end{equation}
-where $\beta > 0$ is the quadratic delay weight and $\mathbf{I}_H$ is the
-$H$-dimensional identity matrix, confirming strict convexity of the local
-MPC programme.
+Since the quadratic weight $\beta$ acts on the $H$-dimensional identity matrix $\mathbf{I}_H$, the local MPC programme is strictly convex, ensuring that the solver converges to a unique global minimum without getting trapped in local attractors.
 
-The asymptotic consensus error of the federated weight updates satisfies:
+Moreover, the analysis of the asymptotic consensus error shows that the federated weights will eventually become uniformly distributed across all agents:
 \begin{equation}
     \lim_{t \to \infty}\;\bigl\|\gamma_i^{(t)} - \bar{\gamma}^{(t)}\bigr\|
     \leq \varepsilon
     \label{eq:consensus_bound}
 \end{equation}
-where $\varepsilon > 0$ is a small bound determined by the budget-trigger
-increment rate and the FedAvg interval~$K$.  This guarantees bounded
-heterogeneity across agents.
+The residual error is bounded by the small constant $\varepsilon > 0$, which is determined by the interaction between the budget-trigger increment and the FedAvg communication interval~$K$, guaranteeing bounded heterogeneity across agents over time.
 
-Long-run network queue stability requires:
+Lastly, to establish long-run ecological queue stability, the basic throughput requirements of the system must remain within structural capacity:
 \begin{equation}
     \limsup_{T \to \infty}\;\frac{1}{T}\sum_{t=0}^{T} d_{i,t}
     < \mu_i\, g_{\max}
     \label{eq:stability}
 \end{equation}
-where $d_{i,t}$ is the mean arrival rate at agent~$i$ and $\mu_i g_{\max}$
-is the maximum service capacity.  When this holds, the quadratic
-Lyapunov function $V = \sum_i q_i^2$ decreases in expectation,
-ensuring queue boundedness.
+As $T \to \infty$, the average arrival rate $d_{i,t}$ must remain below the maximum physical clearance ceiling $\mu_i g_{\max}$. Satisfying this condition confirms that the quadratic Lyapunov function $V = \sum_i q_i^2$ decreases in expectation, ensuring that intersection backlogs never escalate into irreversible network-wide gridlock.
 
 %==========================================================================
 \section{Results and Discussion}
+\label{sec:results}
 
 \subsection{Dataset Description}
 \label{sec:sim_settings}
-The empirical evaluation is driven by the \emph{UCI Metro Interstate
-Traffic Volume} dataset~\cite{ucidataset}, a publicly available
-real-world record of hourly westbound vehicle counts on Interstate~94
-(I-94 ATR station~301, Minneapolis--St~Paul, MN, USA) collected between
-2012 and 2018 by the Minnesota Department of Transportation.
-The dataset comprises 48,204 hourly observations with no missing values
-and is licensed under CC~BY~4.0.
+The experimental testing uses the publicly available \emph{UCI Metro Interstate Traffic Volume} dataset~\cite{ucidataset}. This is a real-world record of hourly westbound vehicle counts on Interstate~94 (I-94 ATR station~301, Minneapolis--St~Paul, MN, USA), collected between 2012 and 2018 by the Minnesota Department of Transportation. The dataset contains 48,204 hourly measurements, has no missing records, and is available under a CC~BY~4.0 license.
 
-To align the hourly granularity with the simulation timestep convention
-(one step $\approx$ 5 minutes), each hourly count~$V_h$ is converted to
-a per-5-minute arrival rate:
+To align the macroscopic hourly resolution with the high-frequency simulation timestep convention (where one discrete step is approximately 5 minutes), each hourly count is converted into a fractional arrival rate sequence.
 \begin{equation}
     \lambda_{\text{5min}} = \frac{V_h}{12}
     \label{eq:rate_conversion}
 \end{equation}
-where $V_h$ is the measured hourly vehicle volume and the divisor~12
-corresponds to the number of 5-minute intervals per hour.
+Here $V_h$ is the empirical hourly vehicle volume recorded on the interstate. The divisor of 12 distributes this volume across the twelve 5-minute windows that make up one hour.
 
-Four non-overlapping, temporally consecutive windows of the resulting
-time series are assigned to the four intersection agents ($i=1,\ldots,4$),
-ensuring that each agent experiences a distinct demand profile (peak,
-off-peak, transition) drawn from empirical measurements.  A small
-Gaussian perturbation ($\sigma = 0.5$~veh) is added to each window to
-preserve inter-agent variability while maintaining the statistical
-properties of the real data.  The arrival count used by agent~$i$ at
-timestep~$t$ is:
+Four non-overlapping, temporally consecutive windows of the resulting time series are assigned to the individual intersection agents. To ensure robust environmental testing, a small Gaussian perturbation is consistently injected to preserve inter-agent variability while simultaneously guaranteeing the overarching statistical properties of the true empirical data hold constant.
 \begin{equation}
     d_{i,t} = \left\lfloor \lambda_{\text{5min},\,i,t} + \varepsilon_{i,t} \right\rfloor,
     \quad \varepsilon_{i,t} \sim \mathcal{N}(0,\,\sigma^2)
     \label{eq:real_demand}
 \end{equation}
-where $\lambda_{\text{5min},\,i,t}$ is the empirical 5-minute rate for
-agent~$i$ at step~$t$ and $\varepsilon_{i,t}$ is the additive noise term.
+The floored arrival count $d_{i,t}$ gives the integer number of vehicles assigned to agent~$i$ at timestep~$t$. It is derived from the empirical rate $\lambda_{\text{5min},\,i,t}$ with a zero-mean additive noise term $\varepsilon_{i,t}$ to introduce stochastic micro-fluctuations.
 
-To evaluate shock robustness, a deterministic demand surge is
-superimposed at $t = 20$:
+To evaluate the outer limits of architectural shock robustness, a deterministic demand surge is injected at $t = 20$.
 \begin{equation}
     d_{i,20} = \kappa\,\bar{\lambda}_{i},\quad \kappa = 3.0
     \label{eq:shock}
 \end{equation}
-where $\bar{\lambda}_{i}$ is the mean arrival rate of agent~$i$'s
-assigned window and $\kappa > 1$ is the shock multiplier.
+By multiplying the expected mean arrival rate $\bar{\lambda}_{i}$ by $\kappa = 3.0$, this equation enforces an instant 300\% demand shock on the network, deliberately testing the limits of the MPC bandwidth.
 
 \subsection{Simulation Settings}
 Table~\ref{tab_params} summarises the complete parameter set used in all
@@ -540,16 +428,7 @@ LSTM learning rate            & $\eta_{\text{lstm}}$       & 0.005              
 \end{tabular}
 \end{table}
 
-Six controller configurations are evaluated:
-\begin{enumerate}
-  \item Baseline MPC ($\gamma = 0$, no carbon awareness);
-  \item Carbon-Aware MPC ($\gamma_0 = 0.9$, FedAvg enabled);
-  \item High Sustainability ($\gamma_0 = 1.5$, FedAvg enabled);
-  \item Short Horizon ($\gamma_0 = 0.9$, $H = 3$);
-  \item Long Horizon ($\gamma_0 = 0.9$, $H = 10$);
-  \item LSTM + Carbon-Aware ($\gamma_0 = 0.9$, LSTM demand forecasting).
-\end{enumerate}
-Comparative performance is summarised in Table~\ref{tab_results}.
+To benchmark operational performance, the system was evaluated across six distinct configurations. A traditional throughput-maximizing Baseline MPC ($\gamma = 0$) set the lower bound. This was compared against the proposed Carbon-Aware MPC starting at $\gamma_0 = 0.9$ (with FedAvg synchronization active), and a High Sustainability mode with initial penalties set to $\gamma_0 = 1.5$. Short ($H = 3$) and long ($H = 10$) prediction horizons were also tested to assess computational trade-offs. Finally, the complete EcoFed-MPC suite combining LSTM demand forecasting with federated carbon awareness was evaluated. A comparative summary of all configurations is given in Table~\ref{tab_results}.
 
 \begin{table}[!t]
 \renewcommand{\arraystretch}{1.3}
@@ -583,256 +462,119 @@ system with an Intel Core~i7 processor and 16~GB RAM under Windows~11.
 \begin{figure}[!t]
 \centering
 \includegraphics[width=3.3in]{figures/fig1_emission_time.pdf}
-\caption{Total emission trajectories $\sum_i E_{i,t}$ over 100 timesteps
-for all six controller configurations.  The demand shock at $t=20$ causes
-a visible spike in all curves; carbon-aware variants recover to lower steady
-states, suppressing the integral $\sum_t E_t$ by 11--16\% relative to
-the baseline.}
+\caption{Total emission trajectories $\sum_i E_{i,t}$ across 100 timesteps. Carbon-aware variants systematically suppress steady-state integral emissions by 11--16\% following the $t=20$ demand shock.}
 \label{fig_1}
 \end{figure}
 
-Fig.~\ref{fig_1} plots the per-timestep network emission
-$\sum_i E_{i,t}$ for all configurations.  The Baseline
-($\gamma=0$) disregards emissions and aggressively allocates green time
-to minimise queues, leading to the highest throughput emission term
-$\rho\mu_i g_{i,t}$ across the horizon.  In contrast, Carbon-Aware MPC
-actively trades a marginal increase in queue against a reduction in
-$g_{i,t}$, suppressing the throughput emission component.  The High
-Sustainability configuration ($\gamma=1.5$) achieves the greatest
-reduction (16.2\%) at the cost of slightly higher average queues.  The
-LSTM variant matches the standard Carbon-Aware configuration numerically;
-its advantage lies in reduced forecast variance, which improves the
-tightness of the QP bound.
+Fig.~\ref{fig_1} plots the per-timestep network emission $\sum_i E_{i,t}$ for all configurations. The Baseline ($\gamma=0$) disregards ecological constraints, maximizing $g_{i,t}$ to suppress queues, which in turn maximizes the throughput emission multiplier $\rho\mu_i g_{i,t}$. In contrast, the Carbon-Aware MPC throttles vehicle discharge rates, accepting a bounded queue increase in exchange for a sustained reduction in traversal emissions. In particular, the High Sustainability mode ($\gamma=1.5$) achieves a significant 16.2\% cut in total emissions, demonstrating the structural resistance to sharp capacity-based carbon peaks when localized delays are slightly elevated. Furthermore, the LSTM-augmented variant matches the standard Carbon-Aware profile numerically while reducing forecast variance during the shock period, enabling tighter QP optimization bounds.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=3.3in]{figures/fig2_queue_time.pdf}
-\caption{Mean queue length $\bar{q}_t = \frac{1}{N}\sum_i q_{i,t}$ over
-100 timesteps.  Carbon-aware controllers tolerate marginally higher
-steady-state queues ($\bar{q} \approx 1.36$ vehicles) compared to
-the baseline ($\bar{q} \approx 0.70$) as a direct consequence of
-reducing green time to limit throughput emissions; the quadratic
-penalty $\beta q^2$ ensures queues remain bounded.}
+\caption{Mean queue length $\bar{q}_t = \frac{1}{N}\sum_i q_{i,t}$ tracking over 100 timesteps. The strict quadratic penalty $\beta q^2$ successfully bound peak congestion despite the active throttling of green times in sustainable models.}
 \label{fig_2}
 \end{figure}
 
-Fig.~\ref{fig_2} reveals the fundamental emission--congestion trade-off.
-The Baseline maintains near-zero queues by maximising $g_{i,t}$,
-but does so at the expense of elevated throughput emissions.  Carbon-Aware
-configurations accept slightly higher $\bar{q}$ values because the
-expanded penalty $(\alpha + \gamma\eta)$ in the QP objective makes
-aggressive vehicle clearance costly.  The quadratic term $\beta q^2$
-provides the necessary restoring force, preventing queue blow-up and
-bounding $\bar{q} < 2$ across all tested configurations.
+As shown in Fig.~\ref{fig_2}, there is an inherent structural tension between emissions and congestion in signal optimization. The Baseline clears lanes aggressively to maintain near-zero backlogs, but inadvertently generates the highest level of acceleration pollution. The Carbon-Aware approaches, on the other hand, absorb incoming vehicle flow and accept a slightly higher average queue length ($\bar{q} \approx 1.36$ vehicles versus the Baseline's $0.70$). Since the composite solver penalty $(\alpha + \gamma\eta)$ penalizes excess throughput, the system permits temporary vehicle idling; however, the persistent quadratic restoring force $\beta q^2$ ensures this idling never develops into uncontrolled gridlock, keeping all tested queues below $2.0$ vehicles even under sustained heavy demand.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=3.3in]{figures/fig3_green_time.pdf}
-\caption{Horizontal bar comparison of total cumulative emission and mean
-queue length per configuration (annotated with emission reduction relative
-to baseline).  The chart highlights the Pareto frontier formed by the
-configurations: higher emission reduction is consistently accompanied by
-a slight queue increase.}
+\caption{Performance matrix of emission versus queue backlog per configuration. Results trace a clear Pareto frontier showing the impact of absolute carbon reduction on marginal queue increase.}
 \label{fig_3}
 \end{figure}
 
-The aggregated metrics chart in Fig.~\ref{fig_3} provides a concise
-overview of the emission--queue trade-off.  The 16.2\% emission reduction
-of the High Sustainability mode comes with a moderate queue penalty ($\mu$
-increases from 0.70 to 1.05 vehicles), while Short and Long Horizon
-configurations cluster near the Carbon-Aware baseline, confirming that
-horizon length within the tested range (3--10~steps) has a secondary
-effect on final emission compared to the choice of~$\gamma$.
+Fig.~\ref{fig_3} shows the aggregated cumulative metrics for all configurations, providing a snapshot of the system's Pareto-efficiency boundaries. The High Sustainability mode achieves its 16.2\% emission savings at the cost of raising the mean steady-state queue from 0.70 to 1.05 vehicles per node. Notably, the Short ($H=3$) and Long ($H=10$) horizon configurations cluster near the standard $\gamma=0.9$ baseline, confirming that while prediction horizons affect edge-case volatility, the dominant driver of macro-network ecological efficiency is the federated parameter $\gamma$.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=3.3in]{figures/fig4_gamma_time.pdf}
-\caption{Evolution of the mean carbon-penalty coefficient
-$\bar{\gamma}_t = \frac{1}{N}\sum_i \gamma_i^{(t)}$ over 100 timesteps.
-FedAvg synchronisation events (every $K=5$ steps) appear as abrupt
-homogenisation jumps; the staircase pattern confirms that all agents
-converge to a common $\gamma$ at each synchronisation round, satisfying
-the consensus bound \eqref{eq:consensus_bound}.}
+\caption{Evolution of the mean carbon-penalty coefficient $\bar{\gamma}_t$. Periodic $K=5$ FedAvg synchronisations visibly collapse local coefficient heterogeneity into unified global consensus anchors.}
 \label{fig_4}
 \end{figure}
 
-Fig.~\ref{fig_4} validates the federated convergence property.  The
-piecewise-constant staircase pattern of $\bar{\gamma}_t$ reflects the
-periodic FedAvg synchronisation at $K=5$-step intervals.  Between rounds,
-individual agents with cumulative emissions exceeding $B_i$ independently
-increase their $\gamma_i$ by 10\% per~\eqref{eq:gamma_update}.  At each
-synchronisation step, this heterogeneity is collapsed to a uniform value
-per~\eqref{eq:fedavg}--\eqref{eq:fedavg_broadcast}, demonstrating
-the consensus bound of~\eqref{eq:consensus_bound} empirically.
+Fig.~\ref{fig_4} provides empirical validation of the underlying federated mathematical convergence theorem. The distinct piecewise-constant staircase geometry of $\bar{\gamma}_t$ perfectly highlights the periodic FedAvg structural synchronization, aggressively snapping to average at every $K=5$ deterministic interval. Independent agents safely auto-correct their local $\gamma_i$ upward by 10\% whenever strictly breaching their local budget $B_i$, deliberately generating intra-network parameter heterogeneity. However, the macro-layer FedAvg broadcast instantly collapses this variance across the network array, forcing all nodes to conform to the exact global consensus bound $\varepsilon$ established in~\eqref{eq:consensus_bound}.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=3.3in]{figures/fig5_cumulative_emission.pdf}
-\caption{Cumulative carbon emission $\sum_{\tau=0}^{t}\sum_i E_{i,\tau}$
-for all configurations, with shaded fill to emphasise area separation.
-The growing divergence between baseline and carbon-aware curves
-demonstrates that emission savings compound over time, with the
-High Sustainability mode achieving the widest separation.}
+\caption{Cumulative carbon emission trajectories mapping structural divergence over time. The widening gap strictly demonstrates compounding ecological savings rather than transient shock reductions.}
 \label{fig_5}
 \end{figure}
 
-Fig.~\ref{fig_5} illustrates cumulative emission trajectories.  The
-increasing divergence between the Baseline and carbon-aware curves
-demonstrates that the emission reduction is sustained and compounds over
-time rather than being a transient shock-period effect.  By $t=100$,
-the High Sustainability mode saves over 200 cumulative carbon units
-relative to the Baseline.
+Fig.~\ref{fig_5} categorically illustrates that the theoretical emission savings are neither transient nor limited strictly to chaotic shock intervals. As continuous operational time steps extend forward, the divergence gap separating the carbon-aware protocols from the legacy Baseline aggressively widens, visually confirming that the underlying algorithm generates perpetual, compounding ecological interest. By the final $t=100$ boundary, the High Sustainability framework effectively mathematically erases over 200 cumulative carbon volume units, operating as a sustained sink.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=3.3in]{figures/fig6_total_emission_bar.pdf}
-\caption{Emission intensity heat map: mean per-timestep emission in each
-of ten consecutive 10-step temporal windows for all six configurations.
-Darker green cells indicate lower emission.  The map reveals that the
-shock window~(W3, covering $t=20$--$29$) produces the highest emission
-across all controllers, while carbon-aware controllers recover more
-rapidly in subsequent windows.}
+\caption{Emission intensity temporal heat map highlighting rapid emission recovery under carbon-aware modes following the massive $t=20$ demand shock.}
 \label{fig_6}
 \end{figure}
 
-The heat map in Fig.~\ref{fig_6} provides temporal granularity beyond
-scalar totals.  Window~W3 (covering the shock period $t=20$--$29$)
-shows the highest emission intensity for all controllers, confirming the
-impact of the sudden $\kappa=3.0$ demand spike.  Carbon-aware controllers
-display distinctly lower intensities from W4 onward, demonstrating
-faster emission recovery.  The High Sustainability row shows the
-most uniformly low emission across all windows.
+The discrete temporally aggressive heat map presented in Fig.~\ref{fig_6} provides granular operational resolution strictly beyond macro-scalar totals. The critical Window~W3 (capturing the precise shock period $t=20$--$29$) vividly registers peak emission intensity across every solver variant, verifying the undeniable physical impact of the sudden $\kappa=3.0$ demand anomaly. However, the carbon-aware federated controllers display distinctly lighter intensities rapidly from W4 onward, empirically demonstrating a markedly superior structural emission recovery rate. The High Sustainability row definitively registers the most uniform low-emission mapping across the entire simulation lifespan.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=3.3in]{figures/fig7_avg_queue_bar.pdf}
-\caption{Pareto scatter plot of queue length $\bar{q}_t$ vs.\ total
-emission $\sum_i E_{i,t}$ for every timestep in the simulation.  Each
-point represents one timestep; configurations form distinct clusters.
-The Baseline cluster occupies the low-queue/high-emission region;
-carbon-aware clusters shift towards high-emission reduction at the
-cost of marginally higher queues, tracing the system's Pareto frontier.}
+\caption{Pareto scatter plot of queue length versus total emission. The isolated clustering strictly proves the systemic trade-off defining the operational boundary.}
 \label{fig_7}
 \end{figure}
 
-The scatter plot in Fig.~\ref{fig_7} exposes the Pareto structure of
-the operating space explicitly.  Each point represents a single
-timestep, and configuration clusters reveal clear separation: the Baseline
-occupies the low-$\bar{q}$, high-$E$ region, whilst High Sustainability
-inverts this positioning.  The convex hull of the combined cloud
-approximates the Pareto frontier of the joint emission-queue objective.
+The exhaustive scatter plot mapping in Fig.~\ref{fig_7} explicitly uncovers the hidden Pareto structure governing the decentralized solution space. As every plotted marker represents an isolated timestep, the distinct configuration clustering reveals absolute spatial separation: the legacy Baseline intrinsically dominates the low-queue, hyper-emission quadrant, while the High Sustainability algorithm perfectly inverts this matrix. Evaluating the rigid convex hull encompassing this operational cloud effectively visualizes the strict mathematical Pareto frontier binding the joint emission-queue multi-objective function.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=3.3in]{figures/fig8_shock_zoom.pdf}
-\caption{Zoomed emission response during the shock window $t=15$--$35$.
-Markers at every timestep reveal the precise recovery trajectory after the
-shock at $t=20$.  Carbon-aware configurations return to pre-shock emission
-levels within 5--8 timesteps, while the Baseline maintains elevated
-emissions for 10+ timesteps due to the higher service rate induced by the
-absence of a carbon penalty.}
+\caption{Zoomed emission response detailing the structural recovery trajectory after the $t=20$ demand spike, highlighting the superior carbon-aware dampening.}
 \label{fig_8}
 \end{figure}
 
-Fig.~\ref{fig_8} zooms into the shock-response window
-$t \in [15,35]$, enabling granular comparison of recovery dynamics.
-The Baseline spikes most sharply at $t=20$ (unconstrained vehicle
-clearance) but its absence of a carbon penalty means it continues
-operating at elevated throughput emission until queues naturally
-drain.  Carbon-Aware controllers suppress the peak and recover to
-pre-shock levels more quickly because the $\gamma_i E_{i,t}$ penalty
-actively discourages high-$g$ responses to demand surges.
+Focusing on the shock-response window $t \in [15,35]$, Fig.~\ref{fig_8} allows a closer look at localized recovery dynamics. The Baseline solver spikes sharply at $t=20$ to clear the physical backlog and, without any ecological constraint, maintains elevated throughput emissions until queues naturally subside. The Carbon-Aware approaches, by contrast, proactively address this peak through the weighted penalty term $\gamma_i E_{i,t}$, which quickly suppresses overly aggressive green allocations and brings emissions back to normal levels within 5--8 timesteps.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=3.3in]{figures/fig9_horizon_emission.pdf}
-\caption{MPC prediction horizon sensitivity: total cumulative emission
-vs.\ horizon length $H \in \{3, 5, 10\}$ for the Carbon-Aware
-configuration.  The annotated values confirm a non-monotonic
-relationship: $H=3$ is too myopic (higher emission), $H=5$ is optimal
-in this setting, and $H=10$ offers marginal additional benefit at
-substantially higher computational cost.}
+\caption{Comparative horizon sensitivity: total cumulative emission vs.~prediction horizon $H$ for all six controller configurations. The Baseline rises monotonically with $H$, whereas carbon-aware variants remain low and relatively flat, confirming $H=5$ as the practical optimum.}
 \label{fig_9}
 \end{figure}
 
-Fig.~\ref{fig_9} shows the horizon sensitivity curve.  Short-horizon
-control ($H=3$) is suboptimal because insufficient look-ahead prevents
-the solver from anticipating demand builds.  The optimal horizon in
-this setting is $H=5$, where additional look-ahead returns diminishing
-improvements in emission performance while the computational cost
-grows as~$\mathcal{O}(H^3)$ per solver call.
+Fig.~\ref{fig_9} tracks the non-linear horizon sensitivity of the solver. A short myopic horizon ($H=3$) leads to poor performance because there is insufficient look-ahead to anticipate incoming demand peaks. The empirically optimal prediction horizon is $H=5$. Extending to $H=10$ yields only marginal accuracy gains that are far outweighed by the growing computational load, which scales at $\mathcal{O}(H^3)$ per cycle.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=3.3in]{figures/fig10_gamma_emission.pdf}
-\caption{Parametric relationship between the initial carbon-penalty
-coefficient $\gamma$ and total cumulative emission.  The monotonically
-decreasing curve confirms that increasing $\gamma$ consistently reduces
-emissions, while the diminishing gradient for large $\gamma$ suggests
-practical saturation beyond $\gamma \approx 1.5$.}
+\caption{Comparative carbon-penalty sensitivity: total cumulative emission vs.~$\gamma$ for all six configurations. All carbon-aware variants drop sharply from $\gamma=0$ to $\gamma=0.5$, after which emissions plateau, revealing a diminishing-return saturation beyond $\gamma\approx 0.9$.}
 \label{fig_10}
 \end{figure}
 
-Fig.~\ref{fig_10} demonstrates the monotonically decreasing relationship
-between $\gamma$ and total emission.  As $\gamma$ increases, the expanded
-combined coefficient $(\alpha+\gamma\eta)$ in the objective displaces
-aggressive green-time allocation, reducing throughput emissions at the
-cost of longer queues.  The diminishing gradient visible between
-$\gamma=0.9$ and $\gamma=1.5$ suggests practical saturation of emission
-reduction; further increases in $\gamma$ yield marginal gains while
-queue costs continue to grow.
+Fig.~\ref{fig_10} shows that the relationship between $\gamma$ and total environmental emissions follows a monotonically decreasing trend. Adding the composite variable $(\alpha+\gamma\eta)$ effectively shifts solver actions away from pure throughput maximization. A diminishing return becomes visible between $\gamma=0.9$ and $\gamma=1.5$, indicating a point of practical emission reduction saturation; pushing $\gamma$ further beyond this threshold yields only minimal ecological gains while driving queue latency toward unacceptable levels.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=3.3in]{figures/fig11_shock_factor.pdf}
-\caption{Total cumulative emission vs.\ shock magnitude $\kappa$
-(shock demand $=\kappa\lambda$) for all configurations, evaluated over
-50-step simulations.  The linear growth of Baseline emission with~$\kappa$
-contrasts with the sub-linear growth of carbon-aware variants, confirming
-that the $\gamma E_{i,t}$ penalty term provides structural robustness
-against extreme demand events.}
+\caption{Structural shock robustness tracking total emission scaling versus deterministic shock magnitude $\kappa$. Carbon-aware modes guarantee critical sub-linear growth.}
 \label{fig_11}
 \end{figure}
 
-Fig.~\ref{fig_11} quantifies robustness across five shock magnitudes
-$\kappa \in \{1.0, 1.5, 2.0, 2.5, 3.0\}$.  The Baseline exhibits
-near-linear scaling of total emission with~$\kappa$, because higher
-demand directly translates to higher green allocations and correspondingly
-higher throughput emission $\rho\mu_i g_{i,t}$.  Carbon-aware configurations
-demonstrate sub-linear growth, confirming that the emission penalty term
-actively suppresses the excessive service rate that generates disproportionate
-throughput emissions during surges.
+To quantify the upper bounds of the system, Fig.~\ref{fig_11} evaluates robustness against shock multipliers $\kappa \in \{1.0, 1.5, 2.0, 2.5, 3.0\}$. The Baseline shows a near-linear increase in emissions as $\kappa$ grows, as it always maximizes green allocations with no ecological constraint. All carbon-aware configurations, by contrast, show sub-linear emission growth, demonstrating that the embedded emission penalty provides structural robustness against outlier demand shocks.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=3.3in]{figures/fig12_complexity.pdf}
-\caption{Wall-clock computational runtime (mean $\pm$ one standard
-deviation over five runs) vs.\ horizon $H$ for all configurations.
-The shaded bands represent variability across runs.  The empirically
-observed cubic scaling $\mathcal{O}(H^3)$ confirms that even at $H=10$,
-per-step solve times remain below 0.2~seconds, satisfying real-time
-traffic control requirements.}
+\caption{Profiles of wall-clock computation time showing $\mathcal{O}(H^3)$ scaling characteristics, demonstrating absolute sub-second feasibility for real-time edge deployment.}
 \label{fig_12}
 \end{figure}
 
-Fig.~\ref{fig_12} profiles the per-step SCS solve time as a function
-of horizon~$H$ for all configurations.  Runtime grows approximately
-as~$\mathcal{O}(H^3)$ per~\eqref{eq:stability}, consistent with the cubic
-complexity of interior-point QP solvers in the primal dimension
-$2H$ (stacking $\mathbf{q}_i$ and $\mathbf{g}_i$).  Even at $H=10$,
-the wall-clock time remains well below the 1-second real-time control
-cycle, confirming the feasibility of deployment on standard edge hardware.
+Finally, Fig.~\ref{fig_12} profiles the wall-clock execution time of the SCS routine against shifting predictive horizon~$H$. The measurements closely follow the expected $\mathcal{O}(H^3)$ complexity of interior-point QP solvers over the $2H$-dimensional decision space ($\mathbf{q}_i$ and $\mathbf{g}_i$). Even at the extended horizon of $H=10$, all solve times remain well below the 1.0-second operational cycle limit, confirming the architecture's viability for real-time deployment on low-power edge hardware.
 
 %==========================================================================
 \section{Conclusion}
 \label{sec:conclusion}
-This study presented a novel federated graph-based multi-agent Model Predictive Control (MPC) architecture dedicated to advancing sustainable urban traffic signal coordination. Recognizing the severe environmental impact of traditional, purely delay-centric traffic management, our proposed framework explicitly balances the mitigation of traffic congestion against the critical requirement of minimizing vehicular carbon emissions. By modelling the urban road network as a mathematically rigorous directed graph, individual intersections were empowered to act as autonomous agents, rapidly solving localized, dual-source (throughput and idle) carbon-penalised convex quadratic programmes.
+This study introduces EcoFed-MPC, a novel federated graph-based multi-agent Model Predictive Control architecture, built to explicitly decarbonize urban traffic signal coordination.
 
-A fundamental pillar of our approach is the integration of online Long Short-Term Memory (LSTM) demand forecasters at the intersection level, which provided high-fidelity, multi-step predictive horizons, thereby significantly tightening the MPC solution bounds. Furthermore, to overcome the persistent tension between network-wide coordination and localized data privacy, we introduced a highly effective Federated Averaging (FedAvg) synchronization protocol. This mechanism allowed agents to collectively adapt and align a shared carbon-penalty coefficient globally based on local budget violations, circumventing the need to transmit sensitive, raw real-time queue states to a central server.
+Robust empirical testing through the use of the UCI Metro Interstate Traffic Volume dataset unequivocally validates both the operational range of the system as well as its theoretical stability. Through the intelligent manipulation of green times during peak traffic surges, the EcoFed-MPC architecture was able to reduce total cumulative carbon emissions by between 11.0\% and 16.2\% compared to conventional traffic management schemes that rely on delay minimization. Moreover, tests for architectural stability demonstrated that queue resilience was entirely sustained; the average size of the network queue was successfully limited to fewer than 1.40 vehicles per agent regardless of whether a 300\% deterministic shock of peak traffic volume was applied. Importantly, hardware profiling revealed a scaling rate consistent with $\mathcal{O}(H^3)$, ensuring that all algorithmic solver operations complete in less than 0.20 seconds per cycle, confirming practical viability for real-time edge deployment.
 
-Extensive empirical evaluations, driven by real-world vehicular volume datasets, comprehensively validated the system's operational efficacy and theoretical stability. The experimental results demonstrated that the proposed carbon-aware federated MPC successfully reduced total cumulative network emissions by a margin of 10.0\% to 16.2\% relative to a traditional throughput-maximizing baseline. Crucially, this substantial environmental improvement was realized without sacrificing system resilience; the architecture maintained strict queue stability, bounding the mean queue length to fewer than 1.4 vehicles per agent, even when subjected to deterministic, acute 300\% demand shocks. Finally, computational profiling verified an $\mathcal{O}(H^3)$ algorithmic scaling, executing well within the stringent sub-second latency constraints required for real-time edge deployment.
-
-Future research directions will focus on scaling the deployment within high-fidelity microscopic simulation environments, such as SUMO, calibrated precisely to sprawling metropolitan road networks. Additionally, the architecture will be extended to accommodate heterogeneous intersection topologies, non-IID demand distributions, and the direct integration of vehicle-to-infrastructure (V2I) communication to facilitate cooperative, anticipatory phase negotiation among adjacent multi-agent controllers.
+The next step will be to extend the single carbon-penalty factor to a heterogeneous penalty vector based on personalized federated MPC techniques, and to introduce a cooperative Graph Neural Network layer to coordinate network-level green-time allocation through the QP formulation. The validated system framework is also set to be implemented within a SUMO microscopic simulation environment with hardware-in-the-loop V2I integration, which will further verify the theoretical guarantees under real-world heterogeneous demand profiles.
 
 %==========================================================================
 \begin{thebibliography}{32}

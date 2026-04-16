@@ -86,10 +86,14 @@ def load_demand_streams(
             print(f"[dataset_loader] Loaded {len(rates_5min):,} samples. "
                   f"Calibrated mean arrival rate: {rates_5min.mean():.2f} veh/5min.")
         except Exception as exc:
-            print(f"[dataset_loader] WARNING: Could not fetch real dataset ({exc}). "
-                  f"Falling back to Poisson(lambda=7).")
+            print(f"[dataset_loader] WARNING: Could not fetch real dataset. "
+                  f"Falling back to noisy dynamic sine wave.")
             rng_fb = np.random.default_rng(seed)
-            _CACHE[cache_key] = rng_fb.poisson(7, size=50000).astype(float)
+            t_array = np.arange(50000)
+            # Create a sinusoidal wave with a 30-timestep period, baseline ~12, amplitude ~6
+            # This generates highly chaotic traffic peaks simulating dense burst arrivals
+            base_rates = 12.0 + 6.0 * np.sin(2 * np.pi * t_array / 30.0)
+            _CACHE[cache_key] = rng_fb.poisson(np.clip(base_rates, 0, None)).astype(float)
 
     rates = _CACHE[cache_key]
     rng = np.random.default_rng(seed)
